@@ -1,6 +1,7 @@
 using Scalar.AspNetCore;
 using Subscribely.Infrastructure;
 using Subscribely.Infrastructure.Jobs;
+using Subscribely.Infrastructure.Security;
 using Subscribely.Modules.Audit;
 using Subscribely.Modules.Billing;
 using Subscribely.Modules.Metering;
@@ -20,8 +21,7 @@ builder.Logging.AddJsonConsole(o =>
 });
 
 builder.Services.AddSubscribelyInfrastructure(builder.Configuration);
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddSubscribelyAuthentication(builder.Configuration);
 builder.Services.AddOpenApi();
 
 builder.Services
