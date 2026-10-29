@@ -27,14 +27,41 @@ jobs:
       - name: Build
         run: dotnet build Subscribely.slnx --no-restore -c Release
 
-      - name: Unit tests
-        run: dotnet test --project tests/Subscribely.UnitTests --no-build -c Release
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Unit tests (coverage)
+        run: >
+          dotnet test --project tests/Subscribely.UnitTests --no-build -c Release --
+          --coverage --coverage-output-format cobertura --coverage-settings coverage.settings.xml
+          --coverage-output "$GITHUB_WORKSPACE/TestResults/coverage/unit.cobertura.xml"
 
       - name: Architecture tests
         run: dotnet test --project tests/Subscribely.ArchitectureTests --no-build -c Release
 
-      - name: Integration tests (Testcontainers)
-        run: dotnet test --project tests/Subscribely.IntegrationTests --no-build -c Release
+      - name: Integration and E2E tests (Testcontainers, coverage)
+        run: >
+          dotnet test --project tests/Subscribely.IntegrationTests --no-build -c Release --
+          --coverage --coverage-output-format cobertura --coverage-settings coverage.settings.xml
+          --coverage-output "$GITHUB_WORKSPACE/TestResults/coverage/integration.cobertura.xml"
+
+      - name: Coverage report
+        run: >
+          dotnet reportgenerator
+          "-reports:TestResults/coverage/*.cobertura.xml"
+          "-targetdir:TestResults/coverage/report"
+          "-reporttypes:Cobertura;MarkdownSummaryGithub;HtmlInline"
+          && cat TestResults/coverage/report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Coverage thresholds (Billing/Payments ≥ 90%, critical classes 100%)
+        run: python3 scripts/check-coverage.py TestResults/coverage/report/Cobertura.xml
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: TestResults/coverage/report
 
   compose-smoke:
     runs-on: ubuntu-latest
@@ -50,7 +77,7 @@ jobs:
       - name: Start stack
         run: docker compose up -d --build
 
-      - name: Wait for readiness
+      - name: Wait for readiness (≤ 60 s)
         run: |
           for i in $(seq 1 30); do
             if curl -fs http://localhost:8080/health/ready; then exit 0; fi

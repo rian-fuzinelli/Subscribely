@@ -28,8 +28,22 @@ docker compose up -d --build    # api, postgres, redis, mailpit
 ```bash
 dotnet test --project tests/Subscribely.UnitTests
 dotnet test --project tests/Subscribely.ArchitectureTests
-dotnet test --project tests/Subscribely.IntegrationTests   # requer Docker
+dotnet test --project tests/Subscribely.IntegrationTests   # requer Docker (inclui os 10 cenários E2E)
 ```
+
+Cobertura (a CI exige ≥ 90% em Billing e Payments e 100% em `ProrationCalculator`, `Subscription` e `WebhookSignature`):
+
+```bash
+dotnet tool restore
+dotnet test --project tests/Subscribely.UnitTests -- --coverage --coverage-output-format cobertura --coverage-settings coverage.settings.xml --coverage-output "$PWD/TestResults/coverage/unit.cobertura.xml"
+dotnet test --project tests/Subscribely.IntegrationTests -- --coverage --coverage-output-format cobertura --coverage-settings coverage.settings.xml --coverage-output "$PWD/TestResults/coverage/integration.cobertura.xml"
+dotnet reportgenerator "-reports:TestResults/coverage/*.cobertura.xml" "-targetdir:TestResults/coverage/report" "-reporttypes:Cobertura;HtmlInline"
+python3 scripts/check-coverage.py TestResults/coverage/report/Cobertura.xml
+```
+
+Para experimentar a cobrança no compose: `PUT /v1/billing/payment-method` com um token de teste do gateway fake
+(`pm_card_ok`, `pm_card_declined`, `pm_card_insufficient_funds`, `pm_card_fail_then_ok`) e `/v1/projects` com o
+header `X-Api-Key` (criada em `POST /v1/api-keys`).
 
 ---
 
