@@ -1,0 +1,4 @@
+@baseUrl = http://localhost:5055
+
+GET {{baseUrl}}/openapi/v1.json
+Accept: application/json

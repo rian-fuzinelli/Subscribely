@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Subscribely.Api/Subscribely.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
   <Project Path="Subscribely.Workspace/Subscribely.Workspace.csproj" />
-  <Project Path="Subscribely/Subscribely.csproj" />
 </Solution>
