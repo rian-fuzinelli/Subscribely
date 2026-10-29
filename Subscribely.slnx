@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Subscribely.Workspace/Subscribely.Workspace.csproj" />
+  <Project Path="Subscribely/Subscribely.csproj" />
+</Solution>

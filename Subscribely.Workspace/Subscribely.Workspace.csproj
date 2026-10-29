@@ -1,0 +1,21 @@
+<!--
+  Projeto "vitrine": não compila nada. Só existe para o Gerenciador de Soluções
+  do Visual Studio exibir os arquivos de trabalho fora dos projetos de código
+  (specs SDD, agentes do Claude, configs da raiz). Os globs pegam arquivos novos
+  automaticamente, sem precisar editar a solução.
+-->
+<Project Sdk="Microsoft.Build.NoTargets/3.7.134">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\specs\**\*" Link="specs\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\.claude\**\*" Link=".claude\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\.specify\**\*" Link=".specify\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\*.md;..\.git*;..\.editorconfig*;..\docker-compose*.yml;..\Directory.*.props" Link="%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>
