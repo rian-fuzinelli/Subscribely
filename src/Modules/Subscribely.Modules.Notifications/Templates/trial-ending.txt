@@ -1,0 +1,12 @@
+Subject: Seu teste do Subscribely termina em {{trialEndsAt}}
+
+Olá, {{company}}!
+
+Seu período de teste termina em {{trialEndsAt}}.
+
+Para continuar usando o produto sem interrupção, cadastre um meio de pagamento. Se você não fizer nada, o acesso será bloqueado ao fim do teste — seus dados continuam guardados.
+
+Cadastrar meio de pagamento: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.

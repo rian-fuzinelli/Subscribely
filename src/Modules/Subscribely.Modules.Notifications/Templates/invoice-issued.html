@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Fatura {{number}} emitida: {{total}}</title></head>
+<body style="margin:0;padding:24px;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1f2933">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:8px">
+    <tr><td style="padding:32px">
+      <p style="margin:0 0 16px;font-size:16px">Olá, {{company}}!</p>
+      <p style="margin:0 0 12px;font-size:15px;line-height:1.5">Emitimos a fatura <strong>{{number}}</strong> em {{issuedAt}}, no valor de <strong>{{total}}</strong>.</p>
+      <p style="margin:0 0 12px;font-size:15px;line-height:1.5">A cobrança é feita agora no meio de pagamento cadastrado. Você recebe outro e-mail quando o pagamento for confirmado.</p>
+      <p style="margin:24px 0"><a href="{{link}}" style="background:#2f6fed;color:#ffffff;padding:12px 20px;border-radius:6px;text-decoration:none;display:inline-block">Ver fatura</a></p>
+      <p style="margin:24px 0 0;font-size:12px;color:#6b7280">Subscribely · Este é um e-mail automático; não responda.</p>
+    </td></tr>
+  </table>
+</body>
+</html>

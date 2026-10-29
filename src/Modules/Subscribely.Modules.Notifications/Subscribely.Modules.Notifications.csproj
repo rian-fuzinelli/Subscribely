@@ -5,6 +5,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\*.html;Templates\*.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Subscribely.Modules.Billing.Contracts\Subscribely.Modules.Billing.Contracts.csproj" />
+    <ProjectReference Include="..\Subscribely.Modules.Metering.Contracts\Subscribely.Modules.Metering.Contracts.csproj" />
+    <ProjectReference Include="..\Subscribely.Modules.Payments.Contracts\Subscribely.Modules.Payments.Contracts.csproj" />
+    <ProjectReference Include="..\Subscribely.Modules.Tenancy.Contracts\Subscribely.Modules.Tenancy.Contracts.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\Subscribely.SharedKernel\Subscribely.SharedKernel.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\Subscribely.Infrastructure\Subscribely.Infrastructure.csproj" />
   </ItemGroup>

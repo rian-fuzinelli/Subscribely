@@ -1,0 +1,12 @@
+Subject: Acesso suspenso por falta de pagamento
+
+Olá, {{company}}!
+
+Esgotamos as tentativas de cobrança e o acesso ao produto foi suspenso. Seus dados continuam guardados.
+
+Assim que a fatura em aberto for paga, o acesso volta automaticamente. Depois de 30 dias suspensa, a assinatura é cancelada.
+
+Pagar fatura em aberto: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.

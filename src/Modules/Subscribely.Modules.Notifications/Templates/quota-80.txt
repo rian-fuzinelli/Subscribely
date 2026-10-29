@@ -1,0 +1,12 @@
+Subject: Você já usou 80% das requisições de {{period}}
+
+Olá, {{company}}!
+
+Sua conta já usou 80% do limite de {{limit}} requisições de {{period}}.
+
+Quando o limite for atingido, as novas requisições serão recusadas até o início do próximo mês. Se precisar de mais, faça um upgrade: o novo limite vale na hora.
+
+Ver uso e planos: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.

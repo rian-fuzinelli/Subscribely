@@ -6,9 +6,9 @@
 
 ## Estado atual
 
-- **Spec ativa:** `07-notifications`
-- **Branch ativa:** `feat/notifications` (criar a partir de `develop`)
-- **Próxima tarefa:** ver `specs/07-notifications/tasks.md`
+- **Spec ativa:** `09-e2e-quality`
+- **Branch ativa:** `test/e2e-quality` (criar a partir de `develop`)
+- **Próxima tarefa:** ver `specs/09-e2e-quality/tasks.md` (T02 em diante)
 
 ## Ordem de execução
 
@@ -43,6 +43,7 @@
 | 04-invoicing | `feat/billing-invoicing` | 2026-10-29 | unit 126 · arch 17 · integration 76 |
 | 05-payments-webhooks | `feat/payments-webhooks` | 2026-10-29 | unit 153 · arch 17 · integration 85 |
 | 06-metering | `feat/metering-quota` | 2026-10-29 | unit 163 · arch 17 · integration 95 |
+| 07-notifications | `feat/email-notifications` | 2026-10-29 | unit 182 · arch 17 · integration 104 |
 
 ## Pendências para o humano (não bloqueiam)
 
