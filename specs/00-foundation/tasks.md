@@ -9,7 +9,7 @@
 - [x] T01 @orquestrador Commit inicial em `main`, criar `develop` — done when: `git branch` lista `main` e `develop`
 - [x] T02 @software-architect Reorganizar em `src/`/`tests/`, mover a API para `src/Subscribely.Api`, remover o WeatherForecast, atualizar `.slnx` e Workspace — done when: `dotnet build` verde (deps: T01)
 - [x] T03 @software-architect `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig` — done when: build verde com `TreatWarningsAsErrors` (deps: T02)
-- [ ] T04 [P] @software-architect Criar SharedKernel (Result, Error, Entity, Money, IDomainEvent) com testes — done when: testes unitários verdes (deps: T03)
+- [x] T04 [P] @software-architect Criar SharedKernel (Result, Error, Entity, Money, IDomainEvent) com testes — done when: testes unitários verdes (deps: T03)
 - [ ] T05 [P] @software-architect Criar os 7 projetos de módulo vazios com `Add<X>Module()` e o teste de fronteira — done when: ArchitectureTests verdes (deps: T03)
 - [ ] T06 [P] @devops-engineer Dockerfile multi-stage não-root, `docker-compose.yml` (api, postgres, redis, mailpit), `.env.example` — done when: `docker compose up` sobe e `/health/live` = 200 (deps: T03)
 - [ ] T07 [P] @database-engineer `ModuleDbContext` base (schema por módulo, convenção snake_case), conexão Catálogo — done when: teste de integração abre conexão no Testcontainers (deps: T04)

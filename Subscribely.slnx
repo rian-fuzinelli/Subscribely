@@ -2,6 +2,11 @@
   <Folder Name="/src/">
     <Project Path="src/Subscribely.Api/Subscribely.Api.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/Subscribely.SharedKernel/Subscribely.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Subscribely.UnitTests/Subscribely.UnitTests.csproj" />
+  </Folder>
   <Project Path="Subscribely.Workspace/Subscribely.Workspace.csproj" />
 </Solution>
