@@ -11,7 +11,6 @@ using Subscribely.Infrastructure.Tenancy;
 using Subscribely.IntegrationTests.Infrastructure;
 using Subscribely.Modules.Billing;
 using Subscribely.Modules.Billing.Contracts;
-using Subscribely.Modules.Billing.Persistence;
 
 namespace Subscribely.IntegrationTests.Tenancy;
 
@@ -20,7 +19,7 @@ public sealed class UsersApiKeysAndIsolationTests(ContainersFixture containers) 
     private readonly SubscribelyApiFactory _factory = new(containers, configureServices: services =>
     {
         services.AddSingleton<IStartupFilter, WhoAmIEndpoint>();
-        services.AddScoped<IBillingApi>(sp => new SeatLimitedBillingApi(new BillingApi(sp.GetRequiredService<BillingDbContext>())));
+        services.AddScoped<IBillingApi>(sp => new SeatLimitedBillingApi(ActivatorUtilities.CreateInstance<BillingApi>(sp)));
     });
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -178,7 +177,7 @@ public sealed class UsersApiKeysAndIsolationTests(ContainersFixture containers) 
         return client;
     }
 
-    /// <summary>Até a spec 03 não há assinatura; este decorator fixa o limite de assentos por tenant.</summary>
+    /// <summary>Fixa o limite de assentos por tenant (independe do plano da assinatura de trial).</summary>
     private sealed class SeatLimitedBillingApi(IBillingApi inner) : IBillingApi
     {
         public static ConcurrentDictionary<Guid, int> MaxSeats { get; } = new();
@@ -187,7 +186,9 @@ public sealed class UsersApiKeysAndIsolationTests(ContainersFixture containers) 
             inner.GetActivePlanVersionAsync(planCode, cancellationToken);
 
         public Task<Entitlements?> GetEntitlementsAsync(Guid tenantId, CancellationToken cancellationToken) =>
-            Task.FromResult(MaxSeats.TryGetValue(tenantId, out var seats) ? new Entitlements("Trialing", 1_000, seats, true) : null);
+            MaxSeats.TryGetValue(tenantId, out var seats)
+                ? Task.FromResult<Entitlements?>(new Entitlements("Trialing", 1_000, seats, true))
+                : inner.GetEntitlementsAsync(tenantId, cancellationToken);
     }
 
     /// <summary>Endpoint de teste protegido pela política de API key (o produto real chega na spec 06).</summary>

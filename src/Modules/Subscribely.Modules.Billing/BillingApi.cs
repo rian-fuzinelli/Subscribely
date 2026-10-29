@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Subscribely.Modules.Billing.Contracts;
 using Subscribely.Modules.Billing.Domain.Plans;
+using Subscribely.Modules.Billing.Features.Subscriptions;
 using Subscribely.Modules.Billing.Persistence;
 
 namespace Subscribely.Modules.Billing;
 
-internal sealed class BillingApi(BillingDbContext db) : IBillingApi
+internal sealed class BillingApi(BillingDbContext db, EntitlementsCache entitlements) : IBillingApi
 {
     public async Task<PlanVersionInfo?> GetActivePlanVersionAsync(string planCode, CancellationToken cancellationToken)
     {
@@ -20,7 +21,6 @@ internal sealed class BillingApi(BillingDbContext db) : IBillingApi
         return new PlanVersionInfo(v.Id, plan.Code, v.Name, v.Version, v.MonthlyPriceCents, v.AnnualPriceCents, v.RequestQuotaMonthly, v.MaxSeats);
     }
 
-    // Implementado de verdade na spec 03 (assinaturas). Até lá nenhum tenant tem assinatura.
-    public Task<Entitlements?> GetEntitlementsAsync(Guid tenantId, CancellationToken cancellationToken) =>
-        Task.FromResult<Entitlements?>(null);
+    public async Task<Entitlements?> GetEntitlementsAsync(Guid tenantId, CancellationToken cancellationToken) =>
+        await entitlements.GetAsync(tenantId, cancellationToken);
 }
