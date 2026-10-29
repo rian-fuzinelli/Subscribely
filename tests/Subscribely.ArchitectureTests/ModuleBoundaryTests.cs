@@ -35,6 +35,7 @@ public sealed class ModuleBoundaryTests
         var leaked = Types.InAssembly(assembly)
             .That().ArePublic()
             .And().DoNotResideInNamespaceEndingWith(".Contracts")
+            .And().DoNotResideInNamespaceEndingWith(".Migrations") // código gerado pelo EF
             .And().DoNotHaveNameEndingWith("Module")
             .GetTypes()
             .Select(t => t.FullName)

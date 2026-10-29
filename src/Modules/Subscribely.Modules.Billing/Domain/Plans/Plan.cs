@@ -1,3 +1,4 @@
+using Subscribely.Infrastructure.Auditing;
 using Subscribely.SharedKernel;
 
 namespace Subscribely.Modules.Billing.Domain.Plans;
@@ -43,6 +44,7 @@ internal sealed record PlanTerms(
 }
 
 /// <summary>Plano comercializado. Alterações criam uma nova <see cref="PlanVersion"/> imutável.</summary>
+[Auditable]
 internal sealed class Plan : Entity
 {
     private readonly List<PlanVersion> _versions = [];
@@ -91,6 +93,7 @@ internal sealed class Plan : Entity
     public void Archive() => Status = PlanStatus.Archived;
 }
 
+[Auditable]
 internal sealed class PlanVersion
 {
     private PlanVersion()
