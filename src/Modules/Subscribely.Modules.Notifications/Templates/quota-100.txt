@@ -1,0 +1,12 @@
+Subject: Limite de requisições de {{period}} atingido
+
+Olá, {{company}}!
+
+Sua conta atingiu o limite de {{limit}} requisições de {{period}}. As novas requisições serão recusadas até {{resetsAt}}.
+
+Para voltar a usar agora, faça um upgrade: o novo limite vale na próxima requisição.
+
+Fazer upgrade: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.

@@ -1,0 +1,12 @@
+Subject: Não conseguimos cobrar a fatura {{number}}
+
+Olá, {{company}}!
+
+A cobrança de {{total}} da fatura {{number}} não foi aprovada ({{reason}}).
+
+{{nextAttempt}} Para evitar a suspensão do acesso, atualize o meio de pagamento — tentamos de novo na hora.
+
+Atualizar meio de pagamento: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.

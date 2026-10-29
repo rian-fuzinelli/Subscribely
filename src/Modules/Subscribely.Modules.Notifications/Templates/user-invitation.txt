@@ -1,0 +1,12 @@
+Subject: Convite para entrar em {{company}} no Subscribely
+
+Olá!
+
+Você recebeu um convite para a conta {{company}} no Subscribely.
+
+O convite vale até {{expiresAt}} e só pode ser usado uma vez. Se você não esperava este e-mail, ignore-o.
+
+Aceitar convite: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.

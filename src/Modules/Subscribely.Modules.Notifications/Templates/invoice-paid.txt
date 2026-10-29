@@ -1,0 +1,12 @@
+Subject: Pagamento confirmado: fatura {{number}}
+
+Olá, {{company}}!
+
+Recebemos o pagamento de {{total}} referente à fatura {{number}} em {{paidAt}}.
+
+Obrigado! Nada mais precisa ser feito.
+
+Ver fatura: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.

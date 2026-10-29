@@ -1,0 +1,12 @@
+Subject: Fatura {{number}} emitida: {{total}}
+
+Olá, {{company}}!
+
+Emitimos a fatura {{number}} em {{issuedAt}}, no valor de {{total}}.
+
+A cobrança é feita agora no meio de pagamento cadastrado. Você recebe outro e-mail quando o pagamento for confirmado.
+
+Ver fatura: {{link}}
+
+--
+Subscribely · Este é um e-mail automático; não responda.
