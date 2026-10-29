@@ -22,8 +22,8 @@
 
 ## Closing (fase *close* do `dev-lifecycle` — sempre por último)
 
-- [ ] @devops-engineer CI GitHub Actions (restore, build, testes com Testcontainers) — done when: pipeline verde
-- [ ] Push da branch para a origem — done when: branch publicada
-- [ ] PR draft (Summary / Notable Decisions / Test Plan, em inglês) e **pausa para aprovação** — done when: o humano aprovar
+- [x] @devops-engineer CI GitHub Actions (restore, build, testes com Testcontainers) — done when: pipeline verde _(workflow criado; validado localmente com os mesmos comandos — sem remoto para rodar no GitHub)_
+- [ ] ⏸ Push da branch para a origem — **bloqueado: sem `origin`** (ver PROGRESS.md)
+- [x] PR draft salvo em `docs/prs/chore-foundation-modular-monolith.md`; merge local `--no-ff` em `develop` (autonomia)
 
 ## Done
