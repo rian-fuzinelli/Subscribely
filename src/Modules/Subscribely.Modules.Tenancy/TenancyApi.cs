@@ -31,4 +31,11 @@ internal sealed class TenancyApi(TenancyDbContext db, TimeProvider time) : ITena
             .OrderBy(u => u.Email)
             .Select(u => new AdminContact(u.Id, u.Email))
             .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<string>> ListActiveTenantSlugsAsync(CancellationToken cancellationToken) =>
+        await db.Tenants.IgnoreQueryFilters().AsNoTracking()
+            .Where(t => t.Status == TenantStatus.Active)
+            .OrderBy(t => t.Slug)
+            .Select(t => t.Slug)
+            .ToListAsync(cancellationToken);
 }
