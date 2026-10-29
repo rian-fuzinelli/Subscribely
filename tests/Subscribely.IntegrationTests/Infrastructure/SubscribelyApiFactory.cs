@@ -32,6 +32,7 @@ public class SubscribelyApiFactory(
             ["ConnectionStrings:Redis"] = containers.RedisConnectionString,
             ["TenantDatabase:ConnectionTemplate"] = containers.TenantConnectionTemplate,
             ["Database:MigrateOnStartup"] = "true",
+            ["Jwt:SigningKey"] = TestTokens.SigningKey,
             ["Logging:LogLevel:Default"] = "Warning",
             ["Logging:LogLevel:Hangfire"] = "None",
             ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "None",

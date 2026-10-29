@@ -22,6 +22,12 @@ public abstract class ModuleDbContext(DbContextOptions options) : DbContext(opti
 
     internal void ClearPendingEvents() => _pendingEvents.Clear();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        ArgumentNullException.ThrowIfNull(configurationBuilder);
+        configurationBuilder.Conventions.Add(_ => new ClientGeneratedKeysConvention());
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);

@@ -1,8 +1,11 @@
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace Subscribely.Infrastructure.Persistence;
 
@@ -16,17 +19,39 @@ public sealed class DatabaseOptions
 
 internal sealed record ModuleDbContextRegistration(Type ContextType);
 
-/// <summary>Aplica as migrations de todos os contextos de módulo registrados no banco Catálogo.</summary>
-public sealed partial class DatabaseMigrator(IServiceProvider services, ILogger<DatabaseMigrator> logger)
+/// <summary>
+/// Aplica as migrations de todos os contextos de módulo e o schema do Hangfire no Catálogo, sob um
+/// advisory lock do Postgres (várias instâncias subindo ao mesmo tempo não disputam o DDL).
+/// </summary>
+public sealed partial class DatabaseMigrator(IServiceProvider services, IConfiguration configuration, ILogger<DatabaseMigrator> logger)
 {
+    private const long MigrationLockKey = 0x5355_4253_4352_4942; // "SUBSCRIB"
+
     public async Task MigrateCatalogAsync(CancellationToken cancellationToken)
     {
-        await using var scope = services.CreateAsyncScope();
-        foreach (var registration in scope.ServiceProvider.GetServices<ModuleDbContextRegistration>())
+        await using var connection = new NpgsqlConnection(configuration.GetConnectionString(InfrastructureSetup.CatalogConnectionName));
+        await connection.OpenAsync(cancellationToken);
+        await using (var lockCommand = new NpgsqlCommand($"SELECT pg_advisory_lock({MigrationLockKey})", connection))
         {
-            var context = (DbContext)scope.ServiceProvider.GetRequiredService(registration.ContextType);
-            await context.Database.MigrateAsync(cancellationToken);
-            LogMigrated(logger, registration.ContextType.Name);
+            await lockCommand.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        try
+        {
+            PostgreSqlObjectsInstaller.Install(connection, "hangfire");
+
+            await using var scope = services.CreateAsyncScope();
+            foreach (var registration in scope.ServiceProvider.GetServices<ModuleDbContextRegistration>())
+            {
+                var context = (DbContext)scope.ServiceProvider.GetRequiredService(registration.ContextType);
+                await context.Database.MigrateAsync(cancellationToken);
+                LogMigrated(logger, registration.ContextType.Name);
+            }
+        }
+        finally
+        {
+            await using var unlockCommand = new NpgsqlCommand($"SELECT pg_advisory_unlock({MigrationLockKey})", connection);
+            await unlockCommand.ExecuteNonQueryAsync(CancellationToken.None);
         }
     }
 
