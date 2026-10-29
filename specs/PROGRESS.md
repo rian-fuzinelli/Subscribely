@@ -6,9 +6,9 @@
 
 ## Estado atual
 
-- **Spec ativa:** `06-metering`
-- **Branch ativa:** `feat/metering` (criar a partir de `develop`)
-- **Próxima tarefa:** ver `specs/06-metering/tasks.md`
+- **Spec ativa:** `07-notifications`
+- **Branch ativa:** `feat/notifications` (criar a partir de `develop`)
+- **Próxima tarefa:** ver `specs/07-notifications/tasks.md`
 
 ## Ordem de execução
 
@@ -42,6 +42,7 @@
 | 03-subscriptions (+02-T05) | `feat/billing-subscriptions` | 2026-10-29 | unit 107 · arch 17 · integration 68 |
 | 04-invoicing | `feat/billing-invoicing` | 2026-10-29 | unit 126 · arch 17 · integration 76 |
 | 05-payments-webhooks | `feat/payments-webhooks` | 2026-10-29 | unit 153 · arch 17 · integration 85 |
+| 06-metering | `feat/metering-quota` | 2026-10-29 | unit 163 · arch 17 · integration 95 |
 
 ## Pendências para o humano (não bloqueiam)
 
