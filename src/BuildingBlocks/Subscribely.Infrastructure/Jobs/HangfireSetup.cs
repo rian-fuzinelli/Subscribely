@@ -44,6 +44,7 @@ public static class HangfireSetup
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
+            .UseLogProvider(new SafeHangfireLogProvider(sp.GetRequiredService<ILoggerFactory>()))
             .UsePostgreSqlStorage(
                 o => o.UseNpgsqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString("Catalog")),
                 new PostgreSqlStorageOptions { SchemaName = "hangfire", PrepareSchemaIfNecessary = true, QueuePollInterval = TimeSpan.FromSeconds(1) }));
@@ -96,6 +97,42 @@ internal sealed class HangfireServerHost(IServiceProvider services, IOptions<Job
     }
 
     public void Dispose() => _server?.Dispose();
+}
+
+/// <summary>
+/// O Hangfire guarda o log provider em estado estático global. Com vários hosts no mesmo processo (testes),
+/// um host descartado não pode derrubar o log dos demais: falhas de "objeto descartado" viram no-op.
+/// </summary>
+internal sealed class SafeHangfireLogProvider(ILoggerFactory loggerFactory) : Hangfire.Logging.ILogProvider
+{
+    private readonly Hangfire.AspNetCore.AspNetCoreLogProvider _inner = new(loggerFactory);
+
+    public Hangfire.Logging.ILog GetLogger(string name)
+    {
+        try
+        {
+            return new SafeLog(_inner.GetLogger(name));
+        }
+        catch (ObjectDisposedException)
+        {
+            return new SafeLog(null);
+        }
+    }
+
+    private sealed class SafeLog(Hangfire.Logging.ILog? inner) : Hangfire.Logging.ILog
+    {
+        public bool Log(Hangfire.Logging.LogLevel logLevel, Func<string>? messageFunc, Exception? exception = null)
+        {
+            try
+            {
+                return inner?.Log(logLevel, messageFunc, exception) ?? false;
+            }
+            catch (ObjectDisposedException)
+            {
+                return false;
+            }
+        }
+    }
 }
 
 internal sealed class PlatformAdminDashboardFilter : IDashboardAuthorizationFilter
