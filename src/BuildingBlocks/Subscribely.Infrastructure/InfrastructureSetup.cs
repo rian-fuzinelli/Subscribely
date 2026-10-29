@@ -103,6 +103,27 @@ public static class InfrastructureSetup
         return services;
     }
 
+    /// <summary>
+    /// Registra um DbContext do data plane: banco do tenant da requisição/job atual (<see cref="ITenantContext.TenantSlug"/>),
+    /// snake_case e auditoria do produto no próprio banco.
+    /// </summary>
+    public static IServiceCollection AddTenantDbContext<TContext>(this IServiceCollection services)
+        where TContext : DbContext
+    {
+        services.AddDbContext<TContext>((sp, options) =>
+        {
+            // Sem tenant (ex.: ferramentas de design do EF) o contexto nasce sem conexão e falha só se for usado.
+            var slug = sp.GetRequiredService<ITenantContext>().TenantSlug;
+            var npgsql = slug is null
+                ? options.UseNpgsql()
+                : options.UseNpgsql(sp.GetRequiredService<TenantDatabaseFactory>().ConnectionStringFor(slug));
+            npgsql
+                .UseSnakeCaseNamingConvention()
+                .AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+        });
+        return services;
+    }
+
     /// <summary>Middlewares transversais que vêm antes da autenticação.</summary>
     public static WebApplication UseSubscribelyInfrastructure(this WebApplication app)
     {

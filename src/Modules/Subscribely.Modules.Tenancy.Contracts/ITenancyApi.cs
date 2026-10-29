@@ -15,6 +15,9 @@ public interface ITenancyApi
     Task<int> CountOccupiedSeatsAsync(Guid tenantId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<AdminContact>> ListActiveAdminsAsync(Guid tenantId, CancellationToken cancellationToken);
+
+    /// <summary>Slugs dos tenants com banco provisionado (para aplicar migrations do data plane).</summary>
+    Task<IReadOnlyList<string>> ListActiveTenantSlugsAsync(CancellationToken cancellationToken);
 }
 
 /// <summary>Banco do tenant criado e migrado; o Billing inicia o trial.</summary>
