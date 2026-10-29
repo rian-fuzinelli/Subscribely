@@ -6,9 +6,9 @@
 
 ## Estado atual
 
-- **Spec ativa:** `04-invoicing`
-- **Branch ativa:** `feat/billing-invoicing` (criar a partir de `develop`)
-- **Próxima tarefa:** ver `specs/04-invoicing/tasks.md` (T04 liga as faturas às transições da spec 03)
+- **Spec ativa:** `05-payments-webhooks`
+- **Branch ativa:** `feat/payments-webhooks` (criar a partir de `develop`)
+- **Próxima tarefa:** ver `specs/05-payments-webhooks/tasks.md` (substituir o `PaymentsApi` provisório que responde `false`)
 
 ## Ordem de execução
 
@@ -40,6 +40,7 @@
 | 08-audit-trail | `feat/audit-trail` | 2026-10-28 | arch 17 · integration 29 |
 | 01-tenancy-identity | `feat/tenancy-identity` | 2026-10-29 | unit 47 · arch 17 · integration 51 |
 | 03-subscriptions (+02-T05) | `feat/billing-subscriptions` | 2026-10-29 | unit 107 · arch 17 · integration 68 |
+| 04-invoicing | `feat/billing-invoicing` | 2026-10-29 | unit 126 · arch 17 · integration 76 |
 
 ## Pendências para o humano (não bloqueiam)
 

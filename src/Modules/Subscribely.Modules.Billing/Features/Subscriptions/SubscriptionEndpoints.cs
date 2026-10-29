@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Subscribely.Infrastructure.Security;
 using Subscribely.Infrastructure.Tenancy;
 using Subscribely.Infrastructure.Web;
+using Subscribely.Modules.Billing.Domain.Invoices;
 using Subscribely.Modules.Billing.Domain.Subscriptions;
+using Subscribely.Modules.Billing.Features.Invoices;
 using Subscribely.Modules.Billing.Persistence;
 using Subscribely.Modules.Payments.Contracts;
 using Subscribely.Modules.Tenancy.Contracts;
@@ -76,6 +78,7 @@ internal static class SubscriptionEndpoints
         ChangePlanRequest request,
         ITenantContext tenant,
         SubscriptionStore store,
+        InvoiceIssuer invoices,
         ITenancyApi tenancy,
         TimeProvider time,
         CancellationToken ct)
@@ -92,8 +95,9 @@ internal static class SubscriptionEndpoints
             return SubscriptionStore.PlanUnavailable.ToProblem();
         }
 
+        var now = time.GetUtcNow();
         var current = await store.VersionAsync(subscription.PlanVersionId, ct);
-        var changed = subscription.ChangePlan(current, target.CurrentVersion, IntervalNames.Parse(request.Interval), time.GetUtcNow());
+        var changed = subscription.ChangePlan(current, target.CurrentVersion, IntervalNames.Parse(request.Interval), now);
         if (!changed.IsSuccess)
         {
             return changed.Error.ToProblem();
@@ -112,12 +116,15 @@ internal static class SubscriptionEndpoints
             }
         }
 
+        var invoice = changed.Value.Billable
+            ? await invoices.IssueUpgradeAsync(subscription, changed.Value, current, target.CurrentVersion, now, ct)
+            : null;
         if (await store.SaveAsync(subscription, ct) is { } conflict)
         {
             return conflict.ToProblem();
         }
 
-        return TypedResults.Ok(new ChangePlanResponse(changed.Value.Immediate ? "immediate" : "period_end", null));
+        return TypedResults.Ok(new ChangePlanResponse(changed.Value.Immediate ? "immediate" : "period_end", invoice?.Id));
     }
 
     private static Task<IResult> CancelPendingChangeAsync(ITenantContext tenant, SubscriptionStore store, BillingDbContext db, TimeProvider time, CancellationToken ct) =>
@@ -132,6 +139,7 @@ internal static class SubscriptionEndpoints
     private static async Task<IResult> ReactivateAsync(
         ITenantContext tenant,
         SubscriptionStore store,
+        InvoiceIssuer invoices,
         BillingDbContext db,
         IPaymentsApi payments,
         TimeProvider time,
@@ -149,12 +157,15 @@ internal static class SubscriptionEndpoints
             return SubscriptionStore.PlanUnavailable.ToProblem();
         }
 
+        var now = time.GetUtcNow();
         var hasPaymentMethod = await payments.HasDefaultPaymentMethodAsync(subscription.TenantId, ct);
-        var reactivated = subscription.Reactivate(hasPaymentMethod, latest.Id, subscription.Interval, time.GetUtcNow());
+        var reactivated = subscription.Reactivate(hasPaymentMethod, latest.Id, subscription.Interval, now);
         if (!reactivated.IsSuccess)
         {
             return reactivated.Error.ToProblem();
         }
+
+        await invoices.IssueFullPeriodAsync(subscription, InvoiceReason.Reactivation, now, ct);
 
         return await store.SaveAsync(subscription, ct) is { } conflict
             ? conflict.ToProblem()

@@ -185,6 +185,15 @@ public sealed class UsersApiKeysAndIsolationTests(ContainersFixture containers) 
         public Task<PlanVersionInfo?> GetActivePlanVersionAsync(string planCode, CancellationToken cancellationToken) =>
             inner.GetActivePlanVersionAsync(planCode, cancellationToken);
 
+        public Task<InvoiceInfo?> GetInvoiceAsync(Guid invoiceId, CancellationToken cancellationToken) =>
+            inner.GetInvoiceAsync(invoiceId, cancellationToken);
+
+        public Task<IReadOnlyList<InvoiceInfo>> ListOpenInvoicesAsync(Guid tenantId, CancellationToken cancellationToken) =>
+            inner.ListOpenInvoicesAsync(tenantId, cancellationToken);
+
+        public Task<MarkInvoicePaidOutcome> MarkInvoicePaidAsync(Guid invoiceId, DateTimeOffset paidAt, CancellationToken cancellationToken) =>
+            inner.MarkInvoicePaidAsync(invoiceId, paidAt, cancellationToken);
+
         public Task<Entitlements?> GetEntitlementsAsync(Guid tenantId, CancellationToken cancellationToken) =>
             MaxSeats.TryGetValue(tenantId, out var seats)
                 ? Task.FromResult<Entitlements?>(new Entitlements("Trialing", 1_000, seats, true))

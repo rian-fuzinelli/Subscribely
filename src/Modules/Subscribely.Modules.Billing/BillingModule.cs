@@ -5,6 +5,7 @@ using Subscribely.Infrastructure;
 using Subscribely.Infrastructure.Jobs;
 using Subscribely.Infrastructure.Outbox;
 using Subscribely.Modules.Billing.Contracts;
+using Subscribely.Modules.Billing.Features.Invoices;
 using Subscribely.Modules.Billing.Features.Plans;
 using Subscribely.Modules.Billing.Features.Subscriptions;
 using Subscribely.Modules.Billing.Features.Subscriptions.Jobs;
@@ -24,6 +25,7 @@ public static class BillingModule
         services.AddScoped<IBillingApi, BillingApi>();
         services.AddScoped<EntitlementsCache>();
         services.AddScoped<SubscriptionStore>();
+        services.AddScoped<InvoiceIssuer>();
         services.AddHostedService<DevelopmentSeed>();
 
         services.AddScoped<IIntegrationEventHandler<TenantProvisioned>, OnTenantProvisioned>();
@@ -41,5 +43,5 @@ public static class BillingModule
     }
 
     public static IEndpointRouteBuilder MapBillingEndpoints(this IEndpointRouteBuilder endpoints) =>
-        endpoints.MapPlanEndpoints().MapSubscriptionEndpoints();
+        endpoints.MapPlanEndpoints().MapSubscriptionEndpoints().MapInvoiceEndpoints();
 }

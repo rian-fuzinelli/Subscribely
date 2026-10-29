@@ -24,6 +24,8 @@ namespace Subscribely.Modules.Billing.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence("invoice_number_seq");
+
             modelBuilder.Entity("Subscribely.Infrastructure.Auditing.AuditEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -141,6 +143,145 @@ namespace Subscribely.Modules.Billing.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Invoices.Invoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(3)")
+                        .HasDefaultValue("BRL")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTimeOffset>("IssuedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("issued_at");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("number");
+
+                    b.Property<DateTimeOffset?>("PaidAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("paid_at");
+
+                    b.Property<DateTimeOffset>("PeriodEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("period_end");
+
+                    b.Property<DateTimeOffset>("PeriodStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("period_start");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subscription_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<long>("TotalCents")
+                        .HasColumnType("bigint")
+                        .HasColumnName("total_cents");
+
+                    b.Property<string>("VoidReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("void_reason");
+
+                    b.Property<DateTimeOffset?>("VoidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("voided_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoices");
+
+                    b.HasIndex("Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_number");
+
+                    b.HasIndex("SubscriptionId", "PeriodStart", "Reason")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_subscription_id_period_start_reason");
+
+                    b.HasIndex("TenantId", "IssuedAt", "Number")
+                        .HasDatabaseName("ix_invoices_tenant_id_issued_at_number");
+
+                    b.ToTable("invoices", "billing", t =>
+                        {
+                            t.HasCheckConstraint("ck_invoices_period", "period_end >= period_start");
+
+                            t.HasCheckConstraint("ck_invoices_total", "total_cents >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Invoices.InvoiceLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<long>("AmountCents")
+                        .HasColumnType("bigint")
+                        .HasColumnName("amount_cents");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("description");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<DateTimeOffset>("PeriodEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("period_end");
+
+                    b.Property<DateTimeOffset>("PeriodStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("period_start");
+
+                    b.Property<Guid>("PlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_version_id");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_lines");
+
+                    b.HasIndex("PlanVersionId")
+                        .HasDatabaseName("ix_invoice_lines_plan_version_id");
+
+                    b.HasIndex("InvoiceId", "Position")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoice_lines_invoice_id_position");
+
+                    b.ToTable("invoice_lines", "billing");
                 });
 
             modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Plans.Plan", b =>
@@ -322,6 +463,33 @@ namespace Subscribely.Modules.Billing.Persistence.Migrations
                     b.ToTable("subscriptions", "billing");
                 });
 
+            modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Invoices.Invoice", b =>
+                {
+                    b.HasOne("Subscribely.Modules.Billing.Domain.Subscriptions.Subscription", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoices_subscriptions_subscription_id");
+                });
+
+            modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Invoices.InvoiceLine", b =>
+                {
+                    b.HasOne("Subscribely.Modules.Billing.Domain.Invoices.Invoice", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_lines_invoices_invoice_id");
+
+                    b.HasOne("Subscribely.Modules.Billing.Domain.Plans.PlanVersion", null)
+                        .WithMany()
+                        .HasForeignKey("PlanVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_lines_plan_versions_plan_version_id");
+                });
+
             modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Plans.PlanVersion", b =>
                 {
                     b.HasOne("Subscribely.Modules.Billing.Domain.Plans.Plan", null)
@@ -346,6 +514,11 @@ namespace Subscribely.Modules.Billing.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_subscriptions_plan_versions_plan_version_id");
+                });
+
+            modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Invoices.Invoice", b =>
+                {
+                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Plans.Plan", b =>
