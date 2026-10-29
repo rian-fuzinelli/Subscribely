@@ -22,10 +22,10 @@ regras de negócio de assinatura.
 
 ## Critério de sucesso global (definição de "pronto")
 
-- [ ] `docker compose up` sobe API, PostgreSQL, Redis e Mailpit; a API responde `GET /health/ready` = 200.
-- [ ] Testes de integração (Testcontainers) cobrem: trial → pago → upgrade → downgrade → cancelamento;
+- [x] `docker compose up` sobe API, PostgreSQL, Redis e Mailpit; a API responde `GET /health/ready` = 200.
+- [x] Testes de integração (Testcontainers) cobrem: trial → pago → upgrade → downgrade → cancelamento;
       webhook duplicado sem efeito; dunning até suspensão; isolamento entre tenants; quota 429.
-- [ ] Testes de arquitetura garantem as fronteiras entre módulos.
+- [x] Testes de arquitetura garantem as fronteiras entre módulos.
 
 ## Decisões globais
 
