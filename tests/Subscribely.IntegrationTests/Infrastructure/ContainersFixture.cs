@@ -17,6 +17,7 @@ public sealed class ContainersFixture : IAsyncLifetime
         .WithDatabase("subscribely_catalog")
         .WithUsername("postgres")
         .WithPassword("postgres")
+        .WithCommand("-c", "max_connections=1000")
         .Build();
 
     private readonly RedisContainer _redis = new RedisBuilder("redis:8-alpine").Build();
@@ -29,9 +30,27 @@ public sealed class ContainersFixture : IAsyncLifetime
 
     public string CatalogConnectionString => _postgres.GetConnectionString();
 
+    /// <summary>Cria um banco Catálogo exclusivo (isolamento total de outbox, Hangfire e auditoria por factory).</summary>
+    public string CreateIsolatedCatalog()
+    {
+        var name = "catalog_" + Guid.NewGuid().ToString("N")[..12];
+        using var connection = new Npgsql.NpgsqlConnection(AdminConnectionString);
+        connection.Open();
+#pragma warning disable CA2100 // nome gerado aqui (hex), sem entrada externa
+        using var command = new Npgsql.NpgsqlCommand($"CREATE DATABASE {name}", connection);
+#pragma warning restore CA2100
+        command.ExecuteNonQuery();
+        return new Npgsql.NpgsqlConnectionStringBuilder(CatalogConnectionString)
+        {
+            Database = name,
+            MaxPoolSize = 20,
+            ConnectionIdleLifetime = 15,
+        }.ConnectionString;
+    }
+
     /// <summary>Template de banco por tenant no mesmo servidor do container.</summary>
     public string TenantConnectionTemplate =>
-        $"Host={_postgres.Hostname};Port={_postgres.GetMappedPublicPort(5432)};Database=subscribely_t_{{slug}};Username=postgres;Password=postgres";
+        $"Host={_postgres.Hostname};Port={_postgres.GetMappedPublicPort(5432)};Database=subscribely_t_{{slug}};Username=postgres;Password=postgres;Maximum Pool Size=5;Connection Idle Lifetime=15";
 
     public string AdminConnectionString =>
         $"Host={_postgres.Hostname};Port={_postgres.GetMappedPublicPort(5432)};Database=postgres;Username=postgres;Password=postgres";

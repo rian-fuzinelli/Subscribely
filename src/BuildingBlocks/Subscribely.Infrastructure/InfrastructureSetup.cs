@@ -56,6 +56,7 @@ public static class InfrastructureSetup
             return ConnectionMultiplexer.Connect(options);
         });
         services.AddHostedService<RedisWarmup>();
+        services.AddSingleton<Caching.RedisRateLimiter>();
         services.AddStackExchangeRedisCache(_ => { });
         services.AddOptions<Microsoft.Extensions.Caching.StackExchangeRedis.RedisCacheOptions>()
             .Configure<IConnectionMultiplexer>((o, mux) => o.ConnectionMultiplexerFactory = () => Task.FromResult(mux));

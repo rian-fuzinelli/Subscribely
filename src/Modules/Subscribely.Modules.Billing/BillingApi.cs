@@ -19,4 +19,8 @@ internal sealed class BillingApi(BillingDbContext db) : IBillingApi
         var v = plan.CurrentVersion;
         return new PlanVersionInfo(v.Id, plan.Code, v.Name, v.Version, v.MonthlyPriceCents, v.AnnualPriceCents, v.RequestQuotaMonthly, v.MaxSeats);
     }
+
+    // Implementado de verdade na spec 03 (assinaturas). Até lá nenhum tenant tem assinatura.
+    public Task<Entitlements?> GetEntitlementsAsync(Guid tenantId, CancellationToken cancellationToken) =>
+        Task.FromResult<Entitlements?>(null);
 }

@@ -46,18 +46,31 @@ public static class Policies
     public const string ApiKey = nameof(ApiKey);
 }
 
+public static class ApiKeyDefaults
+{
+    public const string Scheme = "ApiKey";
+    public const string HeaderName = "X-Api-Key";
+}
+
 public static class AuthenticationSetup
 {
     /// <summary>Cookie usado só pelo dashboard do Hangfire (o navegador não envia o header Authorization).</summary>
     public const string DashboardCookie = "subscribely_dashboard";
 
+    public const string DefaultScheme = "Subscribely";
+
     public static IServiceCollection AddSubscribelyAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.Section));
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+        // Esquema padrão: API key quando o header existe, JWT nos demais casos. As políticas
+        // fixam o esquema aceito (gestão = só JWT; produto = só API key).
+        services.AddAuthentication(DefaultScheme)
+            .AddPolicyScheme(DefaultScheme, DefaultScheme, o => o.ForwardDefaultSelector = context =>
+                context.Request.Headers.ContainsKey(ApiKeyDefaults.HeaderName) ? ApiKeyDefaults.Scheme : JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-            .Configure<IOptions<JwtOptions>>((bearer, jwt) =>
+            .Configure<IOptions<JwtOptions>, TimeProvider>((bearer, jwt, time) =>
             {
                 bearer.MapInboundClaims = false;
                 bearer.TokenValidationParameters = new TokenValidationParameters
@@ -67,6 +80,13 @@ public static class AuthenticationSetup
                     IssuerSigningKey = jwt.Value.GetSigningKey(),
                     ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
                     ClockSkew = TimeSpan.FromSeconds(30),
+                    // Validação de expiração pelo mesmo relógio que emite os tokens (TimeProvider).
+                    LifetimeValidator = (notBefore, expires, _, parameters) =>
+                    {
+                        var now = time.GetUtcNow().UtcDateTime;
+                        return (notBefore is null || notBefore.Value <= now + parameters.ClockSkew)
+                            && (expires is null || expires.Value > now - parameters.ClockSkew);
+                    },
                     NameClaimType = "sub",
                     RoleClaimType = SubscribelyClaims.Role,
                 };
@@ -84,6 +104,10 @@ public static class AuthenticationSetup
             .AddPolicy(Policies.TenantMember, p => p
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireRole(Roles.TenantAdmin, Roles.Member)
+                .RequireClaim(SubscribelyClaims.TenantId))
+            .AddPolicy(Policies.ApiKey, p => p
+                .AddAuthenticationSchemes(ApiKeyDefaults.Scheme)
+                .RequireClaim(SubscribelyClaims.ApiKeyId)
                 .RequireClaim(SubscribelyClaims.TenantId));
 
         return services;
@@ -129,6 +153,9 @@ public static class AuthorizationEndpointExtensions
 
     public static TBuilder RequireTenantAdmin<TBuilder>(this TBuilder builder)
         where TBuilder : IEndpointConventionBuilder => builder.RequireAuthorization(Policies.TenantAdmin);
+
+    public static TBuilder RequireApiKey<TBuilder>(this TBuilder builder)
+        where TBuilder : IEndpointConventionBuilder => builder.RequireAuthorization(Policies.ApiKey);
 
     public static TBuilder RequireTenantMember<TBuilder>(this TBuilder builder)
         where TBuilder : IEndpointConventionBuilder => builder.RequireAuthorization(Policies.TenantMember);
