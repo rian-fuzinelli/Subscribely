@@ -6,7 +6,7 @@
 
 ## Tasks
 
-- [ ] T01 @test-engineer Fixture (factory, containers, FakeTimeProvider, SyncJobClient, MailpitClient) — **antecipar para a onda 1** — done when: um teste de fumaça sobe a API contra os containers
+- [x] T01 @test-engineer Fixture (factory, containers, FakeTimeProvider, SyncJobClient, MailpitClient) — **antecipar para a onda 1** — done when: um teste de fumaça sobe a API contra os containers
 - [ ] T02 @test-engineer DSL de cenário (Given/When/Then) — done when: o cenário 1 lê como prosa (deps: T01)
 - [ ] T03 [P] @test-engineer Cenários 1 (feliz) e 2 (upgrade) — done when: verdes (deps: T02; specs 01–07 mergeadas)
 - [ ] T04 [P] @test-engineer Cenários 3 (downgrade) e 4 (cancelamento) — done when: verdes (deps: T02)

@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+.git/
+.claude/
+.specify/
+specs/
+tests/
+docs/
+Subscribely.Workspace/
+.env
+*.user

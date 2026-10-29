@@ -1,0 +1,64 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props') }}
+
+      - name: Restore
+        run: dotnet restore Subscribely.slnx
+
+      - name: Build
+        run: dotnet build Subscribely.slnx --no-restore -c Release
+
+      - name: Unit tests
+        run: dotnet test --project tests/Subscribely.UnitTests --no-build -c Release
+
+      - name: Architecture tests
+        run: dotnet test --project tests/Subscribely.ArchitectureTests --no-build -c Release
+
+      - name: Integration tests (Testcontainers)
+        run: dotnet test --project tests/Subscribely.IntegrationTests --no-build -c Release
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env
+        run: |
+          cp .env.example .env
+          sed -i "s/^JWT_SIGNING_KEY=.*/JWT_SIGNING_KEY=$(openssl rand -hex 48)/" .env
+
+      - name: Start stack
+        run: docker compose up -d --build
+
+      - name: Wait for readiness
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fs http://localhost:8080/health/ready; then exit 0; fi
+            sleep 2
+          done
+          docker compose logs api
+          exit 1
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v

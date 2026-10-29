@@ -34,6 +34,7 @@ git add -A && git commit -m "<type>(<module>): <descrição em inglês>"      # 
 - Erros de negócio: `Result`/`Error` (SharedKernel) → ProblemDetails. Exceção só para o inesperado.
 - Tempo: injete `TimeProvider`; proibido `DateTime.Now/UtcNow`. Dinheiro: `long` em centavos.
 - Logs estruturados (`logger.LogInformation("Invoice {InvoiceId} paid", id)`); nunca logar segredos ou PII em claro.
+- **Nunca leia valores de `IConfiguration` no momento do registro** (`builder.Configuration[...]` dentro de `Add*Module`): o `WebApplicationFactory` só aplica as configurações de teste depois. Use `services.Configure<TOptions>(section)` + `IOptions<T>` ou leia via `sp.GetRequiredService<IConfiguration>()` dentro de factories.
 - KISS, YAGNI, DRY e SoC: sem abstração sem um segundo uso real nesta spec.
 
 ## Relatório final obrigatório (sua última mensagem)

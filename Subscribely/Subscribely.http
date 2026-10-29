@@ -1,6 +1,0 @@
-@Subscribely_HostAddress = http://localhost:5055
-
-GET {{Subscribely_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

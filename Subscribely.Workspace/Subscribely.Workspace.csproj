@@ -7,7 +7,6 @@
 <Project Sdk="Microsoft.Build.NoTargets/3.7.134">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
     <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>
 
