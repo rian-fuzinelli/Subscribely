@@ -6,9 +6,9 @@
 
 ## Estado atual
 
-- **Spec ativa:** `08-audit-trail`
-- **Branch ativa:** `feat/audit-trail`
-- **Próxima tarefa:** ver `specs/08-audit-trail/tasks.md`
+- **Spec ativa:** `03-subscriptions`
+- **Branch ativa:** `feat/billing-subscriptions` (criar a partir de `develop`)
+- **Próxima tarefa:** ver `specs/03-subscriptions/tasks.md` — também implementar `IBillingApi.GetEntitlementsAsync` (02-T05, hoje retorna null)
 
 ## Ordem de execução
 
@@ -24,6 +24,8 @@
 | 2026-10-28 | Outbox despachado por `BackgroundService` (polling de 2 s) em vez de job recorrente do Hangfire | Cron do Hangfire tem granularidade mínima de 1 min |
 | 2026-10-28 | Validação por filtro DataAnnotations (`WithRequestValidation<T>()`) em vez de `AddValidation()` | O gerador do .NET 10 não cobre endpoints em bibliotecas de módulo |
 | 2026-10-28 | Validação de JWT e políticas RBAC ficam em `Infrastructure/Security`; a emissão de tokens fica no módulo Tenancy | Todos os módulos precisam das políticas antes da spec 01 |
+| 2026-10-29 | Contratos de Billing e Tenancy viraram projetos `*.Contracts` separados | Evita referência circular entre módulos |
+| 2026-10-29 | Testes de integração usam um banco Catálogo isolado por factory | O outbox compartilhado causava interferência entre classes de teste |
 | 2026-10-28 | Specs executadas em sequência pelo orquestrador (sem subagentes paralelos) | Os agentes customizados não estão carregados nesta sessão; a sequência evita conflitos de merge |
 
 ## Specs concluídas
@@ -32,7 +34,9 @@
 |---|---|---|---|
 | 00-foundation | `chore/foundation-modular-monolith` | 2026-10-28 | unit 39 · arch 15 · integration 13 · smoke do compose ok |
 | 02-plans | `feat/billing-plans` | 2026-10-28 | unit 47 · integration 22 (3 execuções verdes) |
+| 08-audit-trail | `feat/audit-trail` | 2026-10-28 | arch 17 · integration 29 |
+| 01-tenancy-identity | `feat/tenancy-identity` | 2026-10-29 | unit 47 · arch 17 · integration 51 |
 
 ## Pendências para o humano (não bloqueiam)
 
-- Criar o repositório no GitHub, adicionar `origin` e publicar `main`/`develop` + abrir os PRs a partir de `docs/prs/`.
+- Abrir os PRs no GitHub a partir dos rascunhos em `docs/prs/` (as branches já foram integradas em `develop`).
