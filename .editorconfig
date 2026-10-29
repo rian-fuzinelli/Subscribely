@@ -35,3 +35,8 @@ dotnet_naming_style.underscore_camel.capitalization = camel_case
 dotnet_diagnostic.CA2007.severity = none
 # Mensagens localizadas não são exigidas.
 dotnet_diagnostic.CA1303.severity = none
+
+# Código gerado (migrations do EF) fica fora dos analyzers
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
