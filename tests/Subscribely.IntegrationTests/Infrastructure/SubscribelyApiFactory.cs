@@ -22,6 +22,8 @@ public class SubscribelyApiFactory(
 {
     public static readonly DateTimeOffset DefaultStart = new(2026, 1, 15, 12, 0, 0, TimeSpan.Zero);
 
+    public const string WebhookSecret = "integration-tests-webhook-secret";
+
     public FakeTimeProvider Time { get; } = new(DefaultStart);
 
     public SyncJobClient Jobs => (SyncJobClient)Services.GetRequiredService<IBackgroundJobClient>();
@@ -62,6 +64,9 @@ public class SubscribelyApiFactory(
             ["Jobs:RecurringJobsEnabled"] = "false",
             ["Smtp:Host"] = containers.MailpitHost,
             ["Smtp:Port"] = containers.MailpitSmtpMappedPort.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["Payments:Provider"] = "Fake",
+            ["Payments:WebhookBaseUrl"] = "http://localhost/",
+            ["Payments:FakeGateway:WebhookSecret"] = WebhookSecret,
         };
         configureSettings?.Invoke(settings);
         var realJobs = settings.TryGetValue("Jobs:ServerEnabled", out var server) && server == "true";
@@ -70,6 +75,8 @@ public class SubscribelyApiFactory(
         builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(settings));
         builder.ConfigureTestServices(services =>
         {
+            // Chamadas HTTP da própria API para ela mesma (gateway Fake e webhooks) passam pelo TestServer.
+            services.ConfigureHttpClientDefaults(http => http.ConfigurePrimaryHttpMessageHandler(() => Server.CreateHandler()));
             services.RemoveAll<TimeProvider>();
             services.AddSingleton<TimeProvider>(Time);
             if (!realJobs)

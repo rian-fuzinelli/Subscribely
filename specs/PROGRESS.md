@@ -6,9 +6,9 @@
 
 ## Estado atual
 
-- **Spec ativa:** `05-payments-webhooks`
-- **Branch ativa:** `feat/payments-webhooks` (criar a partir de `develop`)
-- **Próxima tarefa:** ver `specs/05-payments-webhooks/tasks.md` (substituir o `PaymentsApi` provisório que responde `false`)
+- **Spec ativa:** `06-metering`
+- **Branch ativa:** `feat/metering` (criar a partir de `develop`)
+- **Próxima tarefa:** ver `specs/06-metering/tasks.md`
 
 ## Ordem de execução
 
@@ -41,6 +41,7 @@
 | 01-tenancy-identity | `feat/tenancy-identity` | 2026-10-29 | unit 47 · arch 17 · integration 51 |
 | 03-subscriptions (+02-T05) | `feat/billing-subscriptions` | 2026-10-29 | unit 107 · arch 17 · integration 68 |
 | 04-invoicing | `feat/billing-invoicing` | 2026-10-29 | unit 126 · arch 17 · integration 76 |
+| 05-payments-webhooks | `feat/payments-webhooks` | 2026-10-29 | unit 153 · arch 17 · integration 85 |
 
 ## Pendências para o humano (não bloqueiam)
 
