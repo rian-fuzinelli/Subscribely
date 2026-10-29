@@ -6,13 +6,13 @@
 
 ## Estado atual
 
-- **Spec ativa:** `03-subscriptions`
-- **Branch ativa:** `feat/billing-subscriptions` (criar a partir de `develop`)
-- **Próxima tarefa:** ver `specs/03-subscriptions/tasks.md` — também implementar `IBillingApi.GetEntitlementsAsync` (02-T05, hoje retorna null)
+- **Spec ativa:** `04-invoicing`
+- **Branch ativa:** `feat/billing-invoicing` (criar a partir de `develop`)
+- **Próxima tarefa:** ver `specs/04-invoicing/tasks.md` (T04 liga as faturas às transições da spec 03)
 
 ## Ordem de execução
 
-00 → 02 → 08 → 01 → 03 → 07 → 06 → 04 → 05 → 09 (sequencial nesta sessão; 02 antes de 01 porque o signup valida o plano).
+00 → 02 → 08 → 01 → 03 → 04 → 05 → 06 → 07 → 09 (sequencial; 02 antes de 01 porque o signup valida o plano; 07 por último entre os módulos porque consome eventos de 03–06).
 
 ## Desvios do fluxo padrão (decisões autônomas)
 
@@ -27,6 +27,9 @@
 | 2026-10-29 | Contratos de Billing e Tenancy viraram projetos `*.Contracts` separados | Evita referência circular entre módulos |
 | 2026-10-29 | Testes de integração usam um banco Catálogo isolado por factory | O outbox compartilhado causava interferência entre classes de teste |
 | 2026-10-28 | Specs executadas em sequência pelo orquestrador (sem subagentes paralelos) | Os agentes customizados não estão carregados nesta sessão; a sequência evita conflitos de merge |
+| 2026-10-29 | Ordem alterada para 03 → 04 → 05 → 06 → 07 | Notificações (07) consomem eventos de faturas, pagamentos e quota; implementá-las antes exigiria stubs |
+| 2026-10-29 | Assinatura ganhou `billing_anchor` e `trial_ending_notified_at` (fora do contrato de dados da spec 03) | Âncora do dia de cobrança e aviso D-3 único exigem estado persistido |
+| 2026-10-29 | Novo projeto `Payments.Contracts` (`IPaymentsApi`, `PaymentFailed`, `PaymentRetriesExhausted`) | Billing consulta o meio de pagamento e consome os eventos de dunning sem depender do módulo Payments |
 
 ## Specs concluídas
 
@@ -36,6 +39,7 @@
 | 02-plans | `feat/billing-plans` | 2026-10-28 | unit 47 · integration 22 (3 execuções verdes) |
 | 08-audit-trail | `feat/audit-trail` | 2026-10-28 | arch 17 · integration 29 |
 | 01-tenancy-identity | `feat/tenancy-identity` | 2026-10-29 | unit 47 · arch 17 · integration 51 |
+| 03-subscriptions (+02-T05) | `feat/billing-subscriptions` | 2026-10-29 | unit 107 · arch 17 · integration 68 |
 
 ## Pendências para o humano (não bloqueiam)
 

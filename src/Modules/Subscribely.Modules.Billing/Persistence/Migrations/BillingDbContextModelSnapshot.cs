@@ -230,6 +230,98 @@ namespace Subscribely.Modules.Billing.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Subscriptions.Subscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("BillingAnchor")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("billing_anchor");
+
+                    b.Property<bool>("CancelAtPeriodEnd")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cancel_at_period_end");
+
+                    b.Property<DateTimeOffset>("CurrentPeriodEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("current_period_end");
+
+                    b.Property<DateTimeOffset>("CurrentPeriodStart")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("current_period_start");
+
+                    b.Property<string>("Interval")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("interval");
+
+                    b.Property<string>("PendingInterval")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("pending_interval");
+
+                    b.Property<Guid?>("PendingPlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pending_plan_version_id");
+
+                    b.Property<Guid>("PlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_version_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("SuspendedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("suspended_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("TrialEndingNotifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("trial_ending_notified_at");
+
+                    b.Property<DateTimeOffset?>("TrialEndsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("trial_ends_at");
+
+                    b.Property<bool>("TrialUsed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("trial_used");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_subscriptions");
+
+                    b.HasIndex("PendingPlanVersionId")
+                        .HasDatabaseName("ix_subscriptions_pending_plan_version_id");
+
+                    b.HasIndex("PlanVersionId")
+                        .HasDatabaseName("ix_subscriptions_plan_version_id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_subscriptions_tenant_id");
+
+                    b.HasIndex("Status", "CurrentPeriodEnd")
+                        .HasDatabaseName("ix_subscriptions_status_current_period_end");
+
+                    b.ToTable("subscriptions", "billing");
+                });
+
             modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Plans.PlanVersion", b =>
                 {
                     b.HasOne("Subscribely.Modules.Billing.Domain.Plans.Plan", null)
@@ -238,6 +330,22 @@ namespace Subscribely.Modules.Billing.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_plan_versions_plans_plan_id");
+                });
+
+            modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Subscriptions.Subscription", b =>
+                {
+                    b.HasOne("Subscribely.Modules.Billing.Domain.Plans.PlanVersion", null)
+                        .WithMany()
+                        .HasForeignKey("PendingPlanVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_subscriptions_plan_versions_pending_plan_version_id");
+
+                    b.HasOne("Subscribely.Modules.Billing.Domain.Plans.PlanVersion", null)
+                        .WithMany()
+                        .HasForeignKey("PlanVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_subscriptions_plan_versions_plan_version_id");
                 });
 
             modelBuilder.Entity("Subscribely.Modules.Billing.Domain.Plans.Plan", b =>

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Subscribely.Infrastructure.Persistence;
 using Subscribely.Modules.Billing.Domain.Plans;
+using Subscribely.Modules.Billing.Domain.Subscriptions;
 
 namespace Subscribely.Modules.Billing.Persistence;
 
@@ -14,6 +15,8 @@ internal sealed class BillingDbContext(DbContextOptions<BillingDbContext> option
     public DbSet<Plan> Plans => Set<Plan>();
 
     public DbSet<PlanVersion> PlanVersions => Set<PlanVersion>();
+
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
