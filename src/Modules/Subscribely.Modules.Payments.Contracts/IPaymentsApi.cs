@@ -20,3 +20,6 @@ public sealed record PaymentFailed(
 
 /// <summary>A última retentativa do dunning falhou: a assinatura vai para <c>Suspended</c>.</summary>
 public sealed record PaymentRetriesExhausted(Guid TenantId, Guid InvoiceId, DateTimeOffset OccurredAt) : IIntegrationEvent;
+
+/// <summary>Cobrança confirmada pelo gateway (a fatura já foi marcada como paga).</summary>
+public sealed record PaymentSucceeded(Guid TenantId, Guid InvoiceId, Guid ChargeId, long AmountCents, DateTimeOffset OccurredAt) : IIntegrationEvent;
