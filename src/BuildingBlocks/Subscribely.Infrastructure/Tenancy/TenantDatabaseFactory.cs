@@ -10,6 +10,15 @@ public sealed class TenantDatabaseOptions
 
     /// <summary>Connection string com o placeholder <c>{slug}</c>, ex.: <c>Host=postgres;Database=subscribely_t_{slug};...</c>.</summary>
     public string ConnectionTemplate { get; set; } = string.Empty;
+
+    /// <summary>Papel dono dos bancos de tenant (ex.: <c>subscribely_app</c>); vazio = dono é quem cria.</summary>
+    public string? Owner { get; set; }
+}
+
+/// <summary>Aplica as migrations do banco de um tenant (implementado pelo módulo dono do data plane).</summary>
+public interface ITenantDatabaseMigrator
+{
+    Task MigrateAsync(string tenantSlug, CancellationToken cancellationToken);
 }
 
 /// <summary>Monta a connection string do banco de um tenant a partir do template; valida o slug antes (anti-injeção).</summary>

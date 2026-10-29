@@ -29,7 +29,9 @@ public static class TestTokens
             Issuer = "subscribely",
             Audience = "subscribely-api",
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(30),
+            // Os testes usam FakeTimeProvider (jan/2026) e o relógio real: a janela cobre os dois.
+            NotBefore = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            Expires = DateTime.UtcNow.AddYears(5),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SigningKey)), SecurityAlgorithms.HmacSha256),
         });

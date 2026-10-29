@@ -5,6 +5,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Subscribely.Modules.Tenancy.Contracts\Subscribely.Modules.Tenancy.Contracts.csproj" />
+    <ProjectReference Include="..\Subscribely.Modules.Billing.Contracts\Subscribely.Modules.Billing.Contracts.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\Subscribely.SharedKernel\Subscribely.SharedKernel.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\Subscribely.Infrastructure\Subscribely.Infrastructure.csproj" />
   </ItemGroup>
