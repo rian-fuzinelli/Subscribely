@@ -6,9 +6,9 @@
 
 ## Estado atual
 
-- **Spec ativa:** `02-plans`
-- **Branch ativa:** `feat/billing-plans`
-- **Próxima tarefa:** ver `specs/02-plans/tasks.md`
+- **Spec ativa:** `08-audit-trail`
+- **Branch ativa:** `feat/audit-trail`
+- **Próxima tarefa:** ver `specs/08-audit-trail/tasks.md`
 
 ## Ordem de execução
 
@@ -31,6 +31,7 @@
 | Spec | Branch | Merge em develop | Testes |
 |---|---|---|---|
 | 00-foundation | `chore/foundation-modular-monolith` | 2026-10-28 | unit 39 · arch 15 · integration 13 · smoke do compose ok |
+| 02-plans | `feat/billing-plans` | 2026-10-28 | unit 47 · integration 22 (3 execuções verdes) |
 
 ## Pendências para o humano (não bloqueiam)
 

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StackExchange.Redis;
+using Subscribely.Infrastructure.Auditing;
 using Subscribely.Infrastructure.Jobs;
 using Subscribely.Infrastructure.Outbox;
 using Subscribely.Infrastructure.Persistence;
@@ -33,6 +34,12 @@ public static class InfrastructureSetup
         services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.Section));
         services.AddSingleton<DatabaseMigrator>();
         services.AddHostedService<DatabaseMigrationHostedService>();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<AuditActorAccessor>();
+        services.AddScoped<AuditBuffer>();
+        services.AddScoped<AuditInterceptor>();
+        services.AddScoped<IAuditLog, AuditLog>();
 
         services.Configure<OutboxOptions>(configuration.GetSection(OutboxOptions.Section));
         services.AddSingleton<OutboxInterceptor>();
@@ -89,7 +96,7 @@ public static class InfrastructureSetup
                 sp.GetRequiredService<IConfiguration>().GetConnectionString(CatalogConnectionName),
                 npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", schema))
             .UseSnakeCaseNamingConvention()
-            .AddInterceptors(sp.GetRequiredService<OutboxInterceptor>()));
+            .AddInterceptors(sp.GetRequiredService<OutboxInterceptor>(), sp.GetRequiredService<AuditInterceptor>()));
 
         services.AddSingleton(new ModuleDbContextRegistration(typeof(TContext)));
         return services;

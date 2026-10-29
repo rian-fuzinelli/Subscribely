@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Subscribely.Infrastructure.Auditing;
 using Subscribely.Infrastructure.Outbox;
 using Subscribely.SharedKernel;
 
@@ -34,5 +35,6 @@ public abstract class ModuleDbContext(DbContextOptions options) : DbContext(opti
 
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration(ownsTable: Schema == OutboxDbContext.SchemaName));
+        modelBuilder.ApplyConfiguration(AuditEntryConfiguration.ControlPlane(ownsTable: Schema == AuditEntryConfiguration.ControlSchema));
     }
 }
