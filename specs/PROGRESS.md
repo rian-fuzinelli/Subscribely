@@ -6,9 +6,9 @@
 
 ## Estado atual
 
-- **Spec ativa:** `09-e2e-quality`
-- **Branch ativa:** `test/e2e-quality` (criar a partir de `develop`)
-- **Próxima tarefa:** ver `specs/09-e2e-quality/tasks.md` (T02 em diante)
+- **Spec ativa:** nenhuma — todas as specs (00–09) estão concluídas e integradas em `develop`
+- **Branch ativa:** `develop`
+- **Próxima tarefa:** com um remoto configurado, publicar as branches e abrir os PRs a partir de `docs/prs/`; rodar a CI no GitHub Actions
 
 ## Ordem de execução
 
@@ -44,6 +44,7 @@
 | 05-payments-webhooks | `feat/payments-webhooks` | 2026-10-29 | unit 153 · arch 17 · integration 85 |
 | 06-metering | `feat/metering-quota` | 2026-10-29 | unit 163 · arch 17 · integration 95 |
 | 07-notifications | `feat/email-notifications` | 2026-10-29 | unit 182 · arch 17 · integration 104 |
+| 09-e2e-quality | `test/e2e-scenarios` | 2026-10-29 | unit 182 · arch 17 · integration 121 (10 E2E) · cobertura 93% |
 
 ## Pendências para o humano (não bloqueiam)
 

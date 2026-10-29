@@ -12,7 +12,7 @@ public static class TestTokens
 {
     public const string SigningKey = "integration-tests-signing-key-0123456789-abcdefghijklmnopqrstuvwxyz";
 
-    public static string Issue(string role, Guid? tenantId = null, Guid? userId = null)
+    public static string Issue(string role, Guid? tenantId = null, Guid? userId = null, string? slug = null)
     {
         var claims = new List<Claim>
         {
@@ -22,6 +22,11 @@ public static class TestTokens
         if (tenantId is not null)
         {
             claims.Add(new Claim(SubscribelyClaims.TenantId, tenantId.Value.ToString()));
+        }
+
+        if (slug is not null)
+        {
+            claims.Add(new Claim(SubscribelyClaims.TenantSlug, slug));
         }
 
         return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
