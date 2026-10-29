@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Subscribely.Infrastructure.Persistence;
+using Subscribely.Modules.Billing.Domain.Invoices;
 using Subscribely.Modules.Billing.Domain.Plans;
 using Subscribely.Modules.Billing.Domain.Subscriptions;
+using Subscribely.Modules.Billing.Persistence.Configurations;
 
 namespace Subscribely.Modules.Billing.Persistence;
 
@@ -18,9 +20,14 @@ internal sealed class BillingDbContext(DbContextOptions<BillingDbContext> option
 
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+
+    public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.HasSequence<long>(InvoiceConfiguration.NumberSequence);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BillingDbContext).Assembly);
     }
 }

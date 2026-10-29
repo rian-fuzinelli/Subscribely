@@ -5,7 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Subscribely.Infrastructure.Jobs;
 using Subscribely.Infrastructure.Tenancy;
+using Subscribely.Modules.Billing.Domain.Invoices;
 using Subscribely.Modules.Billing.Domain.Subscriptions;
+using Subscribely.Modules.Billing.Features.Invoices;
 using Subscribely.Modules.Billing.Persistence;
 using Subscribely.Modules.Payments.Contracts;
 
@@ -130,7 +132,14 @@ internal sealed class TrialExpiryJob(SubscriptionBatchRunner runner)
             {
                 var payments = step.Services.GetRequiredService<IPaymentsApi>();
                 var hasPaymentMethod = await payments.HasDefaultPaymentMethodAsync(step.Subscription.TenantId, cancellationToken);
-                return step.Subscription.EndTrial(hasPaymentMethod, step.Now).IsSuccess;
+                var ended = step.Subscription.EndTrial(hasPaymentMethod, step.Now);
+                if (ended.IsSuccess && ended.Value == SubscriptionStatus.Active)
+                {
+                    await step.Services.GetRequiredService<InvoiceIssuer>()
+                        .IssueFullPeriodAsync(step.Subscription, InvoiceReason.TrialConversion, step.Now, cancellationToken);
+                }
+
+                return ended.IsSuccess;
             },
             cancellationToken);
 }
@@ -148,21 +157,43 @@ internal sealed class PeriodEndJob(SubscriptionBatchRunner runner)
             {
                 var store = step.Services.GetRequiredService<SubscriptionStore>();
                 var latest = await store.LatestActiveVersionOfAsync(step.Subscription.PlanVersionId, cancellationToken);
-                return step.Subscription.ClosePeriod(step.Now, latest?.Id) is not null;
+                var closure = step.Subscription.ClosePeriod(step.Now, latest?.Id);
+                if (closure == PeriodClosure.Renewed)
+                {
+                    await step.Services.GetRequiredService<InvoiceIssuer>()
+                        .IssueFullPeriodAsync(step.Subscription, InvoiceReason.Renewal, step.Now, cancellationToken);
+                }
+
+                return closure is not null;
             },
             cancellationToken);
 }
 
-/// <summary>Diário: suspensa há 30 dias → <c>Canceled</c>.</summary>
+/// <summary>Diário: suspensa há 30 dias → <c>Canceled</c>, e a fatura em aberto é anulada (<c>suspension-expired</c>).</summary>
 internal sealed class SuspensionExpiryJob(SubscriptionBatchRunner runner)
 {
+    public const string VoidReason = "suspension-expired";
+
     [DisableConcurrentExecution(timeoutInSeconds: 300)]
     [AutomaticRetry(Attempts = 3)]
     public Task<int> RunAsync(CancellationToken cancellationToken) =>
         runner.RunAsync(
             nameof(SuspensionExpiryJob),
             now => s => s.Status == SubscriptionStatus.Suspended && s.SuspendedAt <= now - Subscription.SuspensionLimit,
-            step => Task.FromResult(step.Subscription.ExpireSuspension(step.Now)),
+            async step =>
+            {
+                if (!step.Subscription.ExpireSuspension(step.Now))
+                {
+                    return false;
+                }
+
+                var db = step.Services.GetRequiredService<BillingDbContext>();
+                var open = await db.Invoices
+                    .Where(i => i.SubscriptionId == step.Subscription.Id && i.Status == InvoiceStatus.Open)
+                    .ToListAsync(cancellationToken);
+                open.ForEach(i => i.Void(VoidReason, step.Now));
+                return true;
+            },
             cancellationToken);
 }
 

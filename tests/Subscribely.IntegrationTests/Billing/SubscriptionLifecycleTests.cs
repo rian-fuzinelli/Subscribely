@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -61,8 +60,8 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
         await EntitlementsAsync(tenant.TenantId); // aquece o cache
 
         _factory.Time.Advance(TimeSpan.FromDays(14));
-        (await RunJobAsync<TrialExpiryJob>()).ShouldBe(1);
-        (await RunJobAsync<TrialExpiryJob>()).ShouldBe(0);
+        (await _factory.RunJobAsync<TrialExpiryJob>()).ShouldBe(1);
+        (await _factory.RunJobAsync<TrialExpiryJob>()).ShouldBe(0);
 
         (await GetSubscriptionAsync(tenant)).GetProperty("status").GetString().ShouldBe("Expired");
         (await EntitlementsAsync(tenant.TenantId))!.ProductAccessAllowed.ShouldBeFalse();
@@ -72,11 +71,11 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
     public async Task TrialEnd_WithPaymentMethod_ConvertsToActive_WithANewMonthlyPeriod()
     {
         var tenant = await Given.ActiveTenantAsync(_factory);
-        FakePaymentsApi.WithPaymentMethod.Add(tenant.TenantId);
+        FakePaymentsApi.WithPaymentMethod[tenant.TenantId] = true;
         var trialEndsAt = _factory.Time.GetUtcNow().AddDays(14);
 
         _factory.Time.Advance(TimeSpan.FromDays(14).Add(TimeSpan.FromMinutes(20)));
-        await RunJobAsync<TrialExpiryJob>();
+        await _factory.RunJobAsync<TrialExpiryJob>();
 
         var subscription = await GetSubscriptionAsync(tenant);
         subscription.GetProperty("status").GetString().ShouldBe("Active");
@@ -90,11 +89,11 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
         var tenant = await Given.ActiveTenantAsync(_factory);
 
         _factory.Time.Advance(TimeSpan.FromDays(10));
-        await RunJobAsync<TrialEndingNotifierJob>();
+        await _factory.RunJobAsync<TrialEndingNotifierJob>();
         _factory.Time.Advance(TimeSpan.FromDays(1));
-        await RunJobAsync<TrialEndingNotifierJob>();
+        await _factory.RunJobAsync<TrialEndingNotifierJob>();
 
-        (await CountOutboxAsync(nameof(TrialEnding), tenant.TenantId)).ShouldBe(1);
+        (await _factory.CountOutboxAsync(nameof(TrialEnding), tenant.TenantId.ToString())).ShouldBe(1);
     }
 
     [Fact]
@@ -141,8 +140,8 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
 
         var end = scheduled.GetProperty("currentPeriodEnd").GetDateTimeOffset();
         _factory.Time.SetUtcNow(end.AddMinutes(5));
-        (await RunJobAsync<PeriodEndJob>()).ShouldBe(1);
-        (await RunJobAsync<PeriodEndJob>()).ShouldBe(0);
+        (await _factory.RunJobAsync<PeriodEndJob>()).ShouldBe(1);
+        (await _factory.RunJobAsync<PeriodEndJob>()).ShouldBe(0);
 
         var applied = await GetSubscriptionAsync(tenant);
         applied.GetProperty("plan").GetProperty("code").GetString().ShouldBe("starter");
@@ -213,11 +212,11 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
 
         await admin.PostAsync(new Uri("/v1/subscription/cancel", UriKind.Relative), null, Ct);
         _factory.Time.SetUtcNow((await GetSubscriptionAsync(tenant)).GetProperty("currentPeriodEnd").GetDateTimeOffset());
-        await RunJobAsync<PeriodEndJob>();
+        await _factory.RunJobAsync<PeriodEndJob>();
 
         (await GetSubscriptionAsync(tenant)).GetProperty("status").GetString().ShouldBe("Canceled");
         (await EntitlementsAsync(tenant.TenantId))!.ProductAccessAllowed.ShouldBeFalse();
-        (await CountOutboxAsync(nameof(SubscriptionCanceled), tenant.TenantId)).ShouldBe(1);
+        (await _factory.CountOutboxAsync(nameof(SubscriptionCanceled), tenant.TenantId.ToString())).ShouldBe(1);
     }
 
     [Fact]
@@ -225,12 +224,12 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
     {
         var tenant = await Given.ActiveTenantAsync(_factory);
         _factory.Time.Advance(TimeSpan.FromDays(14));
-        await RunJobAsync<TrialExpiryJob>();
+        await _factory.RunJobAsync<TrialExpiryJob>();
         var admin = await AdminAsync(tenant);
 
         (await admin.PostAsync(new Uri("/v1/subscription/reactivate", UriKind.Relative), null, Ct)).StatusCode.ShouldBe(HttpStatusCode.PaymentRequired);
 
-        FakePaymentsApi.WithPaymentMethod.Add(tenant.TenantId);
+        FakePaymentsApi.WithPaymentMethod[tenant.TenantId] = true;
         _factory.Time.Advance(TimeSpan.FromDays(3));
         var response = await admin.PostAsync(new Uri("/v1/subscription/reactivate", UriKind.Relative), null, Ct);
 
@@ -247,22 +246,22 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
         var tenant = await ActiveSubscriptionAsync();
         var invoiceId = Guid.NewGuid();
 
-        await HandleAsync(new PaymentFailed(tenant.TenantId, invoiceId, 1, "card_declined", null, _factory.Time.GetUtcNow()));
+        await _factory.HandleAsync(new PaymentFailed(tenant.TenantId, invoiceId, 1, "card_declined", null, _factory.Time.GetUtcNow()));
         (await GetSubscriptionAsync(tenant)).GetProperty("status").GetString().ShouldBe("PastDue");
 
-        await HandleAsync(new PaymentRetriesExhausted(tenant.TenantId, invoiceId, _factory.Time.GetUtcNow()));
-        await HandleAsync(new PaymentRetriesExhausted(tenant.TenantId, invoiceId, _factory.Time.GetUtcNow()));
+        await _factory.HandleAsync(new PaymentRetriesExhausted(tenant.TenantId, invoiceId, _factory.Time.GetUtcNow()));
+        await _factory.HandleAsync(new PaymentRetriesExhausted(tenant.TenantId, invoiceId, _factory.Time.GetUtcNow()));
         (await GetSubscriptionAsync(tenant)).GetProperty("status").GetString().ShouldBe("Suspended");
         (await EntitlementsAsync(tenant.TenantId))!.ProductAccessAllowed.ShouldBeFalse();
 
-        await HandleAsync(new InvoicePaid(invoiceId, tenant.TenantId, Guid.Empty, 4_900, _factory.Time.GetUtcNow()));
+        await _factory.HandleAsync(new InvoicePaid(invoiceId, tenant.TenantId, Guid.Empty, 4_900, _factory.Time.GetUtcNow()));
         (await GetSubscriptionAsync(tenant)).GetProperty("status").GetString().ShouldBe("Active");
 
-        await HandleAsync(new PaymentFailed(tenant.TenantId, invoiceId, 1, "card_declined", null, _factory.Time.GetUtcNow()));
-        await HandleAsync(new PaymentRetriesExhausted(tenant.TenantId, invoiceId, _factory.Time.GetUtcNow()));
+        await _factory.HandleAsync(new PaymentFailed(tenant.TenantId, invoiceId, 1, "card_declined", null, _factory.Time.GetUtcNow()));
+        await _factory.HandleAsync(new PaymentRetriesExhausted(tenant.TenantId, invoiceId, _factory.Time.GetUtcNow()));
         _factory.Time.Advance(TimeSpan.FromDays(30));
-        (await RunJobAsync<SuspensionExpiryJob>()).ShouldBe(1);
-        (await RunJobAsync<SuspensionExpiryJob>()).ShouldBe(0);
+        (await _factory.RunJobAsync<SuspensionExpiryJob>()).ShouldBe(1);
+        (await _factory.RunJobAsync<SuspensionExpiryJob>()).ShouldBe(0);
         (await GetSubscriptionAsync(tenant)).GetProperty("status").GetString().ShouldBe("Canceled");
     }
 
@@ -310,9 +309,9 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
     {
         await Given.EnsurePlanAsync(_factory, "starter");
         var tenant = await Given.ActiveTenantAsync(_factory, plan);
-        FakePaymentsApi.WithPaymentMethod.Add(tenant.TenantId);
+        FakePaymentsApi.WithPaymentMethod[tenant.TenantId] = true;
         _factory.Time.Advance(TimeSpan.FromDays(14));
-        await RunJobAsync<TrialExpiryJob>();
+        await _factory.RunJobAsync<TrialExpiryJob>();
         (await GetSubscriptionAsync(tenant)).GetProperty("status").GetString().ShouldBe("Active");
         return tenant;
     }
@@ -349,40 +348,5 @@ public sealed class SubscriptionLifecycleTests(ContainersFixture containers) : I
     {
         await using var scope = _factory.Services.CreateAsyncScope();
         return await scope.ServiceProvider.GetRequiredService<IBillingApi>().GetEntitlementsAsync(tenantId, Ct);
-    }
-
-    private async Task<int> RunJobAsync<TJob>()
-        where TJob : class
-    {
-        await using var scope = _factory.Services.CreateAsyncScope();
-        var job = scope.ServiceProvider.GetRequiredService<TJob>();
-        return await (Task<int>)typeof(TJob).GetMethod("RunAsync")!.Invoke(job, [Ct])!;
-    }
-
-    private async Task HandleAsync<TEvent>(TEvent @event)
-        where TEvent : SharedKernel.IIntegrationEvent
-    {
-        await using var scope = _factory.Services.CreateAsyncScope();
-        foreach (var handler in scope.ServiceProvider.GetServices<IIntegrationEventHandler<TEvent>>())
-        {
-            await handler.HandleAsync(@event, Ct);
-        }
-    }
-
-    private Task<int> CountOutboxAsync(string eventType, Guid tenantId)
-    {
-        var typePattern = $"%.{eventType},%";
-        var tenantPattern = $"%{tenantId}%";
-        return _factory.WithDbAsync<OutboxDbContext, int>(db => db.Messages
-            .FromSql($"SELECT * FROM outbox.messages WHERE type LIKE {typePattern} AND payload::text LIKE {tenantPattern}")
-            .CountAsync(Ct));
-    }
-
-    private sealed class FakePaymentsApi : IPaymentsApi
-    {
-        public static ConcurrentBag<Guid> WithPaymentMethod { get; } = [];
-
-        public Task<bool> HasDefaultPaymentMethodAsync(Guid tenantId, CancellationToken cancellationToken) =>
-            Task.FromResult(WithPaymentMethod.Contains(tenantId));
     }
 }
