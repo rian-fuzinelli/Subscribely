@@ -16,7 +16,7 @@
 - [x] T08 [P] @security-engineer `ITenantContext` + `TenantDatabaseFactory` com validação de slug — done when: testes de template e de slug inválido verdes (deps: T04)
 - [x] T09 @background-jobs-engineer Hangfire com storage Postgres + dashboard só para PlatformAdmin — done when: teste de integração enfileira e executa um job (deps: T07)
 - [x] T10 @background-jobs-engineer Outbox transacional + `OutboxProcessorJob` recorrente com limite de 5 tentativas — done when: teste prova atomicidade e reprocessamento (deps: T07, T09)
-- [ ] T11 [P] @software-architect ProblemDetails global, validação nativa, CorrelationId, logs JSON — done when: testes de 400/500 e header de correlação verdes (deps: T05)
+- [x] T11 [P] @software-architect ProblemDetails global, validação nativa, CorrelationId, logs JSON — done when: testes de 400/500 e header de correlação verdes (deps: T05)
 - [ ] T12 @devops-engineer Health checks `live`/`ready` (Postgres, Redis) — done when: `ready` = 503 com Redis parado no teste (deps: T06, T07)
 - [ ] T13 @software-architect OpenAPI + Scalar (Development) — done when: `/openapi/v1.json` = 200 (deps: T11)
 

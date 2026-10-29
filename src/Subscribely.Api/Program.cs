@@ -1,3 +1,6 @@
+using Scalar.AspNetCore;
+using Subscribely.Infrastructure;
+using Subscribely.Infrastructure.Jobs;
 using Subscribely.Modules.Audit;
 using Subscribely.Modules.Billing;
 using Subscribely.Modules.Metering;
@@ -8,6 +11,17 @@ using Subscribely.Modules.Tenancy;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddJsonConsole(o =>
+{
+    o.IncludeScopes = true;
+    o.UseUtcTimestamp = true;
+    o.TimestampFormat = "O";
+});
+
+builder.Services.AddSubscribelyInfrastructure(builder.Configuration);
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 
 builder.Services
@@ -21,10 +35,19 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseSubscribelyInfrastructure();
+app.UseAuthentication();
+app.UseTenantResolution();
+app.UseAuthorization();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
+
+app.MapSubscribelyHealthChecks();
+app.MapSubscribelyJobsDashboard();
 
 app.MapTenancyEndpoints()
     .MapBillingEndpoints()
@@ -34,6 +57,6 @@ app.MapTenancyEndpoints()
     .MapAuditEndpoints()
     .MapProjectsEndpoints();
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program;
