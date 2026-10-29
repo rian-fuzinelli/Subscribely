@@ -4,4 +4,15 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks\Subscribely.Infrastructure\Subscribely.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Subscribely.Modules.Tenancy\Subscribely.Modules.Tenancy.csproj" />
+    <ProjectReference Include="..\Modules\Subscribely.Modules.Billing\Subscribely.Modules.Billing.csproj" />
+    <ProjectReference Include="..\Modules\Subscribely.Modules.Payments\Subscribely.Modules.Payments.csproj" />
+    <ProjectReference Include="..\Modules\Subscribely.Modules.Metering\Subscribely.Modules.Metering.csproj" />
+    <ProjectReference Include="..\Modules\Subscribely.Modules.Notifications\Subscribely.Modules.Notifications.csproj" />
+    <ProjectReference Include="..\Modules\Subscribely.Modules.Audit\Subscribely.Modules.Audit.csproj" />
+    <ProjectReference Include="..\Modules\Subscribely.Modules.Projects\Subscribely.Modules.Projects.csproj" />
+  </ItemGroup>
+
 </Project>

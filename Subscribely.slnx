@@ -3,9 +3,20 @@
     <Project Path="src/Subscribely.Api/Subscribely.Api.csproj" />
   </Folder>
   <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/Subscribely.Infrastructure/Subscribely.Infrastructure.csproj" />
     <Project Path="src/BuildingBlocks/Subscribely.SharedKernel/Subscribely.SharedKernel.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/Subscribely.Modules.Audit/Subscribely.Modules.Audit.csproj" />
+    <Project Path="src/Modules/Subscribely.Modules.Billing/Subscribely.Modules.Billing.csproj" />
+    <Project Path="src/Modules/Subscribely.Modules.Metering/Subscribely.Modules.Metering.csproj" />
+    <Project Path="src/Modules/Subscribely.Modules.Notifications/Subscribely.Modules.Notifications.csproj" />
+    <Project Path="src/Modules/Subscribely.Modules.Payments/Subscribely.Modules.Payments.csproj" />
+    <Project Path="src/Modules/Subscribely.Modules.Projects/Subscribely.Modules.Projects.csproj" />
+    <Project Path="src/Modules/Subscribely.Modules.Tenancy/Subscribely.Modules.Tenancy.csproj" />
+  </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Subscribely.ArchitectureTests/Subscribely.ArchitectureTests.csproj" />
     <Project Path="tests/Subscribely.UnitTests/Subscribely.UnitTests.csproj" />
   </Folder>
   <Project Path="Subscribely.Workspace/Subscribely.Workspace.csproj" />
