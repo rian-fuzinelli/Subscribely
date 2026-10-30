@@ -1,6 +1,6 @@
 # Tasks — 09 E2E & Quality
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `test/e2e-scenarios` (base: `develop`)
 

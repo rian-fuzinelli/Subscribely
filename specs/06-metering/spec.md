@@ -37,7 +37,7 @@ banco do tenant (data plane).
 
 ## Authorization
 
-- `/v1/projects`: somente API key (JWT → 401). `/v1/usage*`: TenantAdmin e Member.
+- `/v1/projects`: API key **ou** a sessão (JWT) de um TenantAdmin — emenda da spec 10 (playground do portal), com as mesmas regras de status, quota, alertas e auditoria; Member → 403; sem credencial → 401. `/v1/usage*`: TenantAdmin e Member.
 
 ## Edge cases and failure modes
 

@@ -1,6 +1,6 @@
 # Tasks — 02 Plans
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `feat/billing-plans` (base: `develop`)
 

@@ -1,7 +1,7 @@
 # Subscribely — Visão geral do produto e mapa de módulos
 
 > Documento-raiz do SDD. Toda spec de módulo herda as decisões daqui; contradições devem
-> ser resolvidas **aqui primeiro**. Fluxo de trabalho: `specs/README.md`. Agentes: `specs/ORCHESTRATION.md`.
+> ser resolvidas **aqui primeiro**. Fluxo de trabalho: `specs/README.md`.
 
 ## Problema
 
@@ -112,4 +112,4 @@ Módulos conversam apenas via `Contracts` (síncrono) ou eventos no outbox (ass�
 | 05 | [payments-webhooks](05-payments-webhooks/spec.md) | Payments | 04 | 3 |
 | 09 | [e2e-quality](09-e2e-quality/spec.md) | tests, CI | todas | 4 |
 
-Specs da mesma onda podem rodar **em paralelo** (ver `ORCHESTRATION.md`).
+Specs da mesma onda podem rodar **em paralelo**.

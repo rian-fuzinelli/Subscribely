@@ -6,7 +6,7 @@
 
 ## Estado atual
 
-- **Spec ativa:** nenhuma — todas as specs (00–09) estão concluídas e integradas em `develop`
+- **Spec ativa:** nenhuma — todas as specs (00–10) estão concluídas e integradas em `develop` e `main`
 - **Branch ativa:** `develop`
 - **Próxima tarefa:** com um remoto configurado, publicar as branches e abrir os PRs a partir de `docs/prs/`; rodar a CI no GitHub Actions
 
@@ -45,6 +45,7 @@
 | 06-metering | `feat/metering-quota` | 2026-10-29 | unit 163 · arch 17 · integration 95 |
 | 07-notifications | `feat/email-notifications` | 2026-10-29 | unit 182 · arch 17 · integration 104 |
 | 09-e2e-quality | `test/e2e-scenarios` | 2026-10-29 | unit 182 · arch 17 · integration 121 (10 E2E) · cobertura 93% |
+| 10-web-portal | `feat/web-portal` | 2026-10-30 | API: unit 182 · arch 17 · integration 122 · portal: 29 testes (Vitest), lint, typecheck e build |
 
 ## Pendências para o humano (não bloqueiam)
 

@@ -1,6 +1,6 @@
 # Tasks — 04 Invoicing
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `feat/billing-invoicing` (base: `develop`)
 

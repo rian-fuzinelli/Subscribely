@@ -61,7 +61,24 @@ internal static class SignupEndpoints
             .AllowAnonymous()
             .WithRequestValidation<SignupRequest>()
             .Produces<SignupResponse>(StatusCodes.Status202Accepted);
+
+        // Acompanhamento do provisionamento pelo portal. O id (UUID v7) só é conhecido por quem fez o signup.
+        endpoints.MapGet("/v1/signup/{tenantId:guid}", GetStatusAsync)
+            .WithTags("Signup")
+            .AllowAnonymous()
+            .Produces<SignupResponse>();
         return endpoints;
+    }
+
+    private static async Task<IResult> GetStatusAsync(Guid tenantId, TenancyDbContext db, CancellationToken ct)
+    {
+        var status = await db.Tenants.AsNoTracking()
+            .Where(t => t.Id == tenantId)
+            .Select(t => (TenantStatus?)t.Status)
+            .FirstOrDefaultAsync(ct);
+        return status is { } value
+            ? TypedResults.Ok(new SignupResponse(tenantId, value.ToString()))
+            : Error.NotFound("signup-not-found", "Signup not found.").ToProblem();
     }
 
     private static async Task<IResult> SignupAsync(
