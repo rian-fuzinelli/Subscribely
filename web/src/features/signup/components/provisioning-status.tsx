@@ -45,9 +45,9 @@ export function ProvisioningStatusPanel({ tenantId, email }: { tenantId: string;
   if (status === "Active") {
     return (
       <div role="status" className="space-y-4 text-center">
-        <CircleCheck className="mx-auto size-12 text-emerald-600" aria-hidden />
-        <h2 className="text-xl font-semibold text-slate-900">Sua conta está pronta!</h2>
-        <p className="text-sm text-slate-600">O teste de 14 dias já começou. Entre para conhecer o portal.</p>
+        <CircleCheck className="mx-auto size-12 text-ledger-700" aria-hidden />
+        <h2 className="text-title font-semibold text-ink">Sua conta está pronta!</h2>
+        <p className="text-meta text-ink-soft">O teste de 14 dias já começou. Entre para conhecer o portal.</p>
         <ButtonLink href={loginHref} size="lg">
           Entrar no portal
         </ButtonLink>
@@ -58,9 +58,9 @@ export function ProvisioningStatusPanel({ tenantId, email }: { tenantId: string;
   if (status === "ProvisioningFailed" || timedOut) {
     return (
       <div role="alert" className="space-y-3 text-center">
-        <CircleX className="mx-auto size-12 text-red-600" aria-hidden />
-        <h2 className="text-xl font-semibold text-slate-900">Não conseguimos preparar sua conta</h2>
-        <p className="text-sm text-slate-600">
+        <CircleX className="mx-auto size-12 text-fault-600" aria-hidden />
+        <h2 className="text-title font-semibold text-ink">Não conseguimos preparar sua conta</h2>
+        <p className="text-meta text-ink-soft">
           {timedOut
             ? "Está demorando mais que o normal. Tente entrar em alguns minutos."
             : "Tentamos algumas vezes sem sucesso. Fale com o suporte informando o e-mail usado no cadastro."}
@@ -74,9 +74,9 @@ export function ProvisioningStatusPanel({ tenantId, email }: { tenantId: string;
 
   return (
     <div role="status" aria-live="polite" className="space-y-3 text-center">
-      <LoaderCircle className="mx-auto size-12 animate-spin text-brand-600" aria-hidden />
-      <h2 className="text-xl font-semibold text-slate-900">Preparando sua conta…</h2>
-      <p className="text-sm text-slate-600">Estamos criando um banco de dados exclusivo para a sua empresa. Leva só alguns segundos.</p>
+      <LoaderCircle className="mx-auto size-12 animate-spin text-ledger-600" aria-hidden />
+      <h2 className="text-title font-semibold text-ink">Preparando sua conta…</h2>
+      <p className="text-meta text-ink-soft">Estamos criando um banco de dados exclusivo para a sua empresa. Leva só alguns segundos.</p>
     </div>
   );
 }

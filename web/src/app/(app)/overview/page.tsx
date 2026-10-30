@@ -1,14 +1,17 @@
-import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { InvoiceTable, listInvoices } from "@/features/invoices";
 import { SubscriptionCard, getSubscription } from "@/features/subscription";
 import { UsageSummary, getUsage } from "@/features/usage";
 import { requireSession } from "@/shared/auth/session";
-import { Alert, PageHeader } from "@/shared/ui/primitives";
+import { TextLink } from "@/shared/ui/button";
+import { Alert, SectionTitle } from "@/shared/ui/primitives";
 
 export const metadata: Metadata = { title: "Visão geral" };
 
+/**
+ * Coluna principal: o documento (assinatura) e as últimas faturas. Coluna lateral, mais estreita: os medidores
+ * do mês — a pergunta "quanto usei" é secundária à "quanto pago e até quando".
+ */
 export default async function OverviewPage({ searchParams }: { searchParams: Promise<{ denied?: string }> }) {
   const session = await requireSession("/overview");
   const isAdmin = session.role === "TenantAdmin";
@@ -21,28 +24,33 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="space-y-8">
-      <PageHeader title="Visão geral" description="Assinatura, uso do mês e as últimas faturas da sua conta." />
+      <h1 className="text-title font-semibold tracking-tight">Visão geral</h1>
       {denied && <Alert tone="warning">Essa página é só para administradores da conta.</Alert>}
 
-      {subscription ? (
-        <SubscriptionCard subscription={subscription} isAdmin={isAdmin} />
-      ) : (
-        <Alert tone="brand" title="Estamos terminando de preparar sua assinatura">Recarregue a página em alguns segundos.</Alert>
-      )}
+      {/* Celular: assinatura, uso e faturas, nessa ordem. Desktop: uso numa coluna lateral ao lado das duas. */}
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:gap-x-12">
+        <div className="lg:col-start-1">
+          {subscription ? (
+            <SubscriptionCard subscription={subscription} isAdmin={isAdmin} />
+          ) : (
+            <Alert tone="brand" title="A assinatura está sendo criada">Recarregue a página em alguns segundos.</Alert>
+          )}
+        </div>
 
-      {usage && <UsageSummary usage={usage} isAdmin={isAdmin} />}
+        <aside aria-label="Uso do mês" className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          {usage && <UsageSummary usage={usage} isAdmin={isAdmin} layout="stack" />}
+        </aside>
 
-      {invoices && (
-        <section aria-labelledby="ultimas-faturas" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 id="ultimas-faturas" className="text-base font-semibold text-slate-900">Últimas faturas</h2>
-            <Link href="/billing/invoices" className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline">
-              Ver todas <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          </div>
-          <InvoiceTable invoices={invoices.items} />
-        </section>
-      )}
+        {invoices && (
+          <section aria-labelledby="ultimas-faturas" className="space-y-3 lg:col-start-1">
+            <div className="flex items-baseline justify-between">
+              <SectionTitle id="ultimas-faturas">Últimas faturas</SectionTitle>
+              {invoices.items.length > 0 && <TextLink href="/billing/invoices" className="text-meta">Todas as faturas</TextLink>}
+            </div>
+            <InvoiceTable invoices={invoices.items} compact />
+          </section>
+        )}
+      </div>
     </div>
   );
 }

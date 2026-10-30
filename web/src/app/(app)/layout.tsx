@@ -14,29 +14,29 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const [tenant, subscription] = await Promise.all([getTenant(), getSubscription()]);
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
-      <aside className="hidden border-r border-slate-200 bg-white lg:flex lg:flex-col">
-        <div className="flex h-16 items-center px-5">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
+      <aside className="hidden border-r border-line bg-paper lg:flex lg:flex-col">
+        <div className="flex h-14 items-center px-6">
           <Logo href="/overview" />
         </div>
-        <nav aria-label="Portal" className="flex-1 px-3 py-4">
+        <nav aria-label="Portal" className="flex-1 px-3 py-6">
           <NavLinks isAdmin={isAdmin} />
         </nav>
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="relative flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 sm:px-6">
+        <header className="relative flex h-14 items-center justify-between gap-4 border-b border-line bg-paper px-4 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <MobileNav isAdmin={isAdmin} />
             <span className="lg:hidden">
               <Logo href="/overview" />
             </span>
-            <p className="hidden truncate text-sm font-semibold text-slate-900 lg:block">{tenant?.name ?? "Sua conta"}</p>
+            <p className="hidden truncate font-semibold lg:block">{tenant?.name ?? "Sua conta"}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
-              <p className="max-w-56 truncate text-sm text-slate-900">{session.email ?? "Usuário"}</p>
-              <p className="text-xs text-slate-500">{isAdmin ? "Administrador" : "Membro"}</p>
+              <p className="max-w-56 truncate text-meta text-ink">{session.email ?? "Usuário"}</p>
+              <p className="text-meta text-ink-faint">{isAdmin ? "Administrador" : "Membro"}</p>
             </div>
             <form action={logoutAction}>
               <Button type="submit" variant="ghost" size="sm">
@@ -47,7 +47,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main id="conteudo" className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8 sm:px-6">
+        <main id="conteudo" className="w-full max-w-6xl flex-1 space-y-8 px-4 py-8 sm:px-8 sm:py-10 xl:px-12">
           <SubscriptionBanner subscription={subscription} isAdmin={isAdmin} />
           {children}
         </main>

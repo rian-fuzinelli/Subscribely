@@ -1,111 +1,133 @@
 "use client";
 
-import { Check } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/shared/cn";
 import { formatMoney, formatNumber } from "@/shared/format";
 import { buttonClass } from "@/shared/ui/button";
-import Link from "next/link";
+import { Ledger } from "@/shared/ui/ledger";
 import type { Plan } from "../api";
 
 type Interval = "monthly" | "annual";
 
-/** Grade de planos com alternância mensal/anual. O plano do meio é destacado como recomendado. */
-export function PlanGrid({
-  plans,
-  hrefTemplate,
-  ctaLabel = "Começar teste grátis",
-  current,
-}: {
+/**
+ * Comparação de planos em tabela (lado a lado no desktop) e em extratos empilhados no celular.
+ * A alternância mensal/anual muda só a linha de preço.
+ */
+export function PlanGrid({ plans, hrefTemplate, ctaLabel = "Começar o teste" }: {
   plans: Plan[];
   /** URL do botão com `{plan}` e `{interval}` (funções não atravessam para o cliente). */
   hrefTemplate: string;
   ctaLabel?: string;
-  current?: { code: string; interval: Interval };
 }) {
-  const [interval, setInterval] = useState<Interval>(current?.interval ?? "monthly");
-  const featured = plans.length >= 3 ? plans[1]?.code : undefined;
+  const [interval, setInterval] = useState<Interval>("monthly");
+  const price = (plan: Plan) => (interval === "monthly" ? plan.monthlyPriceCents : plan.annualPriceCents);
+  const href = (plan: Plan) => hrefTemplate.replace("{plan}", encodeURIComponent(plan.code)).replace("{interval}", interval);
+  const savings = (plan: Plan) => plan.monthlyPriceCents * 12 - plan.annualPriceCents;
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-center">
-        <div role="radiogroup" aria-label="Intervalo de cobrança" className="inline-flex rounded-xl bg-slate-100 p-1">
+    <div className="space-y-6">
+      <fieldset className="flex items-center gap-3">
+        <legend className="sr-only">Cobrança</legend>
+        <span className="text-meta text-ink-soft" aria-hidden>
+          Cobrança
+        </span>
+        <div className="inline-flex rounded-control border border-line-strong bg-paper p-0.5">
           {(["monthly", "annual"] as const).map((value) => (
-            <button
+            <label
               key={value}
-              type="button"
-              role="radio"
-              aria-checked={interval === value}
-              onClick={() => setInterval(value)}
               className={cn(
-                "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                interval === value ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900",
+                "cursor-pointer rounded-[4px] px-3 py-1.5 text-meta font-medium transition-colors has-focus-visible:outline-2 has-focus-visible:outline-ledger-600",
+                interval === value ? "bg-ink text-paper" : "text-ink-soft hover:text-ink",
               )}
             >
+              <input type="radio" name="billing-interval" className="sr-only" checked={interval === value} onChange={() => setInterval(value)} />
               {value === "monthly" ? "Mensal" : "Anual"}
-            </button>
+            </label>
           ))}
         </div>
-      </div>
+      </fieldset>
 
-      <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {plans.map((plan) => {
-          const price = interval === "monthly" ? plan.monthlyPriceCents : plan.annualPriceCents;
-          const savings = plan.monthlyPriceCents * 12 - plan.annualPriceCents;
-          const isCurrent = current?.code === plan.code && current.interval === interval;
-          const isFeatured = plan.code === featured;
-          return (
-            <li
-              key={plan.code}
-              className={cn(
-                "relative flex flex-col rounded-2xl border bg-white p-6 shadow-xs",
-                isFeatured ? "border-brand-600 ring-1 ring-brand-600" : "border-slate-200",
-              )}
-            >
-              {isFeatured && (
-                <span className="absolute -top-3 left-6 rounded-full bg-brand-600 px-3 py-0.5 text-xs font-semibold text-white">
-                  Mais escolhido
-                </span>
-              )}
-              <h3 className="text-lg font-semibold text-slate-900">{plan.name}</h3>
-              <p className="mt-4 flex items-baseline gap-1">
-                <span className="text-3xl font-bold tracking-tight text-slate-900">{formatMoney(price)}</span>
-                <span className="text-sm text-slate-500">/{interval === "monthly" ? "mês" : "ano"}</span>
-              </p>
-              <p className="mt-1 h-5 text-xs text-emerald-700">
-                {interval === "annual" && savings > 0 ? "Economize " + formatMoney(savings) + " por ano" : ""}
-              </p>
-              <ul className="mt-6 flex-1 space-y-3 text-sm text-slate-700">
-                <Feature>{formatNumber(plan.requestQuotaMonthly)} requisições por mês</Feature>
-                <Feature>Até {formatNumber(plan.maxSeats)} {plan.maxSeats === 1 ? "usuário" : "usuários"}</Feature>
-                <Feature>14 dias de teste, sem cartão</Feature>
-                <Feature>Cancele quando quiser</Feature>
-              </ul>
-              {isCurrent ? (
-                <span className={buttonClass({ variant: "secondary" }, "mt-8 w-full")} aria-disabled>
-                  Plano atual
-                </span>
-              ) : (
-                <Link
-                  href={hrefTemplate.replace("{plan}", encodeURIComponent(plan.code)).replace("{interval}", interval)}
-                  className={buttonClass({ variant: isFeatured ? "primary" : "secondary" }, "mt-8 w-full")}
-                >
+      {/* Desktop: tabela comparativa. */}
+      <table className="hidden w-full border-collapse text-left md:table">
+        <caption className="sr-only">Comparação dos planos</caption>
+        <thead>
+          <tr className="border-b-2 border-ink">
+            <td className="w-1/4 pb-3" />
+            {plans.map((plan) => (
+              <th key={plan.code} scope="col" className="pb-3 text-title font-semibold">
+                {plan.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="numeric">
+          <tr className="border-b border-line">
+            <th scope="row" className="py-4 font-normal text-ink-soft">
+              Preço
+            </th>
+            {plans.map((plan) => (
+              <td key={plan.code} className="py-4">
+                <span className="text-title font-semibold">{formatMoney(price(plan))}</span>
+                <span className="text-meta text-ink-faint"> por {interval === "monthly" ? "mês" : "ano"}</span>
+                {interval === "annual" && savings(plan) > 0 && (
+                  <span className="block text-meta text-ledger-700">economia de {formatMoney(savings(plan))}</span>
+                )}
+              </td>
+            ))}
+          </tr>
+          <tr className="border-b border-line">
+            <th scope="row" className="py-4 font-normal text-ink-soft">
+              Requisições por mês
+            </th>
+            {plans.map((plan) => (
+              <td key={plan.code} className="py-4">{formatNumber(plan.requestQuotaMonthly)}</td>
+            ))}
+          </tr>
+          <tr className="border-b border-line">
+            <th scope="row" className="py-4 font-normal text-ink-soft">
+              Usuários
+            </th>
+            {plans.map((plan) => (
+              <td key={plan.code} className="py-4">até {formatNumber(plan.maxSeats)}</td>
+            ))}
+          </tr>
+          <tr>
+            <td className="pt-6" />
+            {plans.map((plan, index) => (
+              <td key={plan.code} className="pt-6 pr-6">
+                <Link href={href(plan)} className={buttonClass({ variant: index === 1 ? "primary" : "secondary" })}>
                   {ctaLabel}
                 </Link>
-              )}
-            </li>
-          );
-        })}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Celular: um extrato por plano. */}
+      <ul className="space-y-8 md:hidden">
+        {plans.map((plan, index) => (
+          <li key={plan.code} className="border-t-2 border-ink pt-4">
+            <h3 className="text-title font-semibold">{plan.name}</h3>
+            <Ledger
+              className="mt-2"
+              rows={[
+                {
+                  label: interval === "monthly" ? "Por mês" : "Por ano",
+                  value: formatMoney(price(plan)),
+                  detail: interval === "annual" && savings(plan) > 0 ? "Economia de " + formatMoney(savings(plan)) + " por ano" : undefined,
+                },
+                { label: "Requisições por mês", value: formatNumber(plan.requestQuotaMonthly) },
+                { label: "Usuários", value: "até " + formatNumber(plan.maxSeats) },
+              ]}
+            />
+            <Link href={href(plan)} className={buttonClass({ variant: index === 1 ? "primary" : "secondary" }, "mt-4 w-full")}>
+              {ctaLabel} no {plan.name}
+            </Link>
+          </li>
+        ))}
       </ul>
     </div>
-  );
-}
-
-function Feature({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex gap-2">
-      <Check className="mt-0.5 size-4 shrink-0 text-brand-600" aria-hidden />
-      <span>{children}</span>
-    </li>
   );
 }

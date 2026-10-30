@@ -1,13 +1,12 @@
-import { CreditCard } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getPaymentMethod } from "@/features/payment-method";
 import { listPlans } from "@/features/pricing";
 import { SubscriptionCard, getSubscription } from "@/features/subscription";
 import { requireSession } from "@/shared/auth/session";
 import { formatDate } from "@/shared/format";
-import { ButtonLink } from "@/shared/ui/button";
-import { Alert, Card, CardTitle, PageHeader } from "@/shared/ui/primitives";
+import { ButtonLink, TextLink } from "@/shared/ui/button";
+import { Ledger } from "@/shared/ui/ledger";
+import { Alert, PageHeader, Section } from "@/shared/ui/primitives";
 
 export const metadata: Metadata = { title: "Assinatura" };
 
@@ -23,22 +22,18 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   const pendingPlanName = plans.find((p) => p.code === subscription?.pendingChange?.planCode)?.name;
 
   return (
-    <div className="space-y-8">
-      <PageHeader title="Assinatura" description="Plano, período e meio de pagamento." />
+    <div className="max-w-3xl space-y-10">
+      <PageHeader title="Assinatura" description="Plano, período e como você paga." />
 
       {changed === "immediate" && (
         <Alert tone="success" title="Plano alterado">
-          A mudança já está valendo.{" "}
-          {invoice && (
-            <Link href={"/billing/invoices/" + invoice} className="font-medium underline">
-              Ver a fatura proporcional
-            </Link>
-          )}
+          A mudança já vale.{" "}
+          {invoice && <TextLink href={"/billing/invoices/" + invoice}>Abrir a fatura proporcional</TextLink>}
         </Alert>
       )}
       {changed === "period_end" && (
         <Alert tone="success" title="Mudança agendada">
-          O novo plano começa no fim do período atual. Você pode desfazer a mudança até lá.
+          O novo plano começa no fim do período atual. Dá para desfazer até lá.
         </Alert>
       )}
 
@@ -49,24 +44,28 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
       )}
 
       {isAdmin && (
-        <Card className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <span className="grid size-10 place-items-center rounded-lg bg-slate-100">
-              <CreditCard className="size-5 text-slate-600" aria-hidden />
-            </span>
-            <div>
-              <CardTitle>Meio de pagamento</CardTitle>
-              <p className="text-sm text-slate-600">
-                {paymentMethod
-                  ? paymentMethod.brand.toUpperCase() + " final " + paymentMethod.last4 + " · atualizado em " + formatDate(paymentMethod.updatedAt)
-                  : "Nenhum cartão cadastrado. Sem ele, o teste termina sem conversão e o acesso é bloqueado."}
-              </p>
-            </div>
-          </div>
-          <ButtonLink href="/billing/payment-method" variant={paymentMethod ? "secondary" : "primary"}>
-            {paymentMethod ? "Trocar cartão" : "Cadastrar cartão"}
-          </ButtonLink>
-        </Card>
+        <Section title="Meio de pagamento" description="Usado na primeira fatura, nas renovações e nas novas tentativas de cobrança.">
+          {paymentMethod ? (
+            <Ledger
+              className="border-y border-line"
+              rows={[
+                {
+                  label: "Cartão " + paymentMethod.brand.toUpperCase() + " final " + paymentMethod.last4,
+                  detail: "Atualizado em " + formatDate(paymentMethod.updatedAt),
+                  value: <TextLink href="/billing/payment-method">Trocar cartão</TextLink>,
+                },
+              ]}
+            />
+          ) : (
+            <Alert
+              tone="warning"
+              title="Nenhum cartão cadastrado"
+              action={<ButtonLink href="/billing/payment-method" size="sm">Cadastrar cartão</ButtonLink>}
+            >
+              Sem cartão, o teste termina sem cobrança e o acesso ao produto é pausado. Os dados ficam guardados.
+            </Alert>
+          )}
+        </Section>
       )}
     </div>
   );

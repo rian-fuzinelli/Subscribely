@@ -38,22 +38,25 @@ export function ChangePlanForm({
   const disabled = effect === "no-change" || effect === "blocked-past-due";
 
   return (
-    <form action={action} className="space-y-6">
+    <form action={action} className="max-w-3xl space-y-6">
       <input type="hidden" name="planCode" value={planCode} />
       <input type="hidden" name="interval" value={interval} />
 
-      <fieldset>
-        <legend className="mb-3 text-sm font-medium text-slate-800">Cobrança</legend>
-        <div className="inline-flex rounded-xl bg-slate-100 p-1">
+      <fieldset className="flex items-center gap-3">
+        <legend className="sr-only">Cobrança</legend>
+        <span aria-hidden className="text-meta text-ink-soft">
+          Cobrança
+        </span>
+        <div className="inline-flex rounded-control border border-line-strong bg-paper p-0.5">
           {(["monthly", "annual"] as const).map((value) => (
             <label
               key={value}
               className={cn(
-                "cursor-pointer rounded-lg px-4 py-2 text-sm font-medium has-focus-visible:outline-2 has-focus-visible:outline-brand-600",
-                interval === value ? "bg-white text-slate-900 shadow-xs" : "text-slate-600",
+                "cursor-pointer rounded-[4px] px-3 py-1.5 text-meta font-medium transition-colors has-focus-visible:outline-2 has-focus-visible:outline-ledger-600",
+                interval === value ? "bg-ink text-paper" : "text-ink-soft hover:text-ink",
               )}
             >
-              <input type="radio" className="sr-only" checked={interval === value} onChange={() => setInterval(value)} />
+              <input type="radio" name="interval-choice" className="sr-only" checked={interval === value} onChange={() => setInterval(value)} />
               {value === "monthly" ? "Mensal" : "Anual"}
             </label>
           ))}
@@ -61,38 +64,39 @@ export function ChangePlanForm({
       </fieldset>
 
       <fieldset>
-        <legend className="mb-3 text-sm font-medium text-slate-800">Plano</legend>
-        <div className="grid gap-4 md:grid-cols-3">
+        <legend className="sr-only">Plano</legend>
+        <ul className="divide-y divide-line border-y border-ink">
           {plans.map((plan) => {
-            const selected = plan.code === planCode;
             const isCurrent = plan.code === current.code && interval === current.interval;
             return (
-              <label
-                key={plan.code}
-                className={cn(
-                  "relative flex cursor-pointer flex-col rounded-xl border bg-white p-5 has-focus-visible:outline-2 has-focus-visible:outline-brand-600",
-                  selected ? "border-brand-600 ring-1 ring-brand-600" : "border-slate-200 hover:border-slate-300",
-                )}
-              >
-                <input type="radio" className="sr-only" checked={selected} onChange={() => setPlanCode(plan.code)} />
-                <span className="flex items-center justify-between font-semibold text-slate-900">
-                  {plan.name}
-                  {isCurrent && <span className="text-xs font-medium text-slate-500">Atual</span>}
-                </span>
-                <span className="mt-2 text-2xl font-bold text-slate-900">
-                  {formatMoney(interval === "monthly" ? plan.monthlyPriceCents : plan.annualPriceCents)}
-                  <span className="text-sm font-normal text-slate-500">/{interval === "monthly" ? "mês" : "ano"}</span>
-                </span>
-                <span className="mt-3 text-sm text-slate-600">
-                  {formatNumber(plan.requestQuotaMonthly)} requisições/mês · até {plan.maxSeats} usuários
-                </span>
-              </label>
+              <li key={plan.code}>
+                <label className="grid cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-x-4 px-2 py-4 transition-colors hover:bg-paper has-checked:bg-ledger-50">
+                  <input
+                    type="radio"
+                    name="plan-choice"
+                    className="size-4 translate-y-0.5 accent-ledger-600"
+                    checked={plan.code === planCode}
+                    onChange={() => setPlanCode(plan.code)}
+                  />
+                  <span>
+                    <span className="font-semibold">{plan.name}</span>
+                    {isCurrent && <span className="ml-2 text-meta text-ink-faint">plano atual</span>}
+                    <span className="block text-meta text-ink-soft">
+                      {formatNumber(plan.requestQuotaMonthly)} requisições por mês, até {plan.maxSeats} usuários
+                    </span>
+                  </span>
+                  <span className="numeric text-right font-semibold">
+                    {formatMoney(interval === "monthly" ? plan.monthlyPriceCents : plan.annualPriceCents)}
+                    <span className="block text-meta font-normal text-ink-faint">por {interval === "monthly" ? "mês" : "ano"}</span>
+                  </span>
+                </label>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </fieldset>
 
-      <Alert tone={effect === "blocked-past-due" ? "warning" : "brand"} title="O que acontece">
+      <Alert tone={effect === "blocked-past-due" ? "warning" : "neutral"} title="O que acontece">
         {effectText[effect]}
       </Alert>
 
@@ -107,13 +111,13 @@ export function ChangePlanForm({
         </Alert>
       )}
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <ButtonLink href="/billing" variant="secondary">
-          Voltar
-        </ButtonLink>
-        <SubmitButton disabled={disabled} pendingLabel="Aplicando…">
-          {effect === "period-end" ? "Agendar mudança" : "Confirmar mudança"}
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton disabled={disabled} pendingLabel="Aplicando a mudança…">
+          {effect === "period-end" ? "Agendar a mudança" : "Mudar de plano agora"}
         </SubmitButton>
+        <ButtonLink href="/billing" variant="ghost">
+          Voltar sem mudar
+        </ButtonLink>
       </div>
     </form>
   );

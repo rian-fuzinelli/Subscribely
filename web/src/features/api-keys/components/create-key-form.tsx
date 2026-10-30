@@ -43,7 +43,7 @@ function NewKey({ name, secret }: { name: string; secret: string }) {
     <Alert tone="success" title={"Chave \"" + name + "\" criada — copie agora"}>
       <p>Por segurança, ela não será mostrada de novo. Guarde-a num cofre de segredos.</p>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <code className="block flex-1 rounded-lg bg-white px-3 py-2 font-mono text-xs break-all text-slate-900 ring-1 ring-emerald-200">
+        <code className="block flex-1 rounded-control bg-paper px-3 py-2 font-mono text-meta break-all text-ink ring-1 ring-ledger-100">
           {secret}
         </code>
         <Button

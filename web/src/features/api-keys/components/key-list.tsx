@@ -1,23 +1,22 @@
 import { formatDateTime } from "@/shared/format";
 import { ActionButton } from "@/shared/ui/action-button";
-import { Badge, Card, CardTitle, EmptyState } from "@/shared/ui/primitives";
+import { Badge, EmptyState, Section } from "@/shared/ui/primitives";
 import { revokeApiKeyAction } from "../actions";
 import type { ApiKey } from "../api";
 
 export function KeyList({ keys }: { keys: ApiKey[] }) {
   return (
-    <Card className="space-y-4">
-      <CardTitle>Chaves</CardTitle>
+    <Section title="Chaves">
       {keys.length === 0 ? (
         <EmptyState title="Nenhuma chave criada" description="Crie uma chave para o seu sistema chamar a API do produto." />
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-line border-y border-line">
           {keys.map((key) => (
             <li key={key.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-900">{key.name}</p>
-                <p className="text-xs text-slate-500">
-                  <code className="font-mono">{key.prefix}…</code> · criada em {formatDateTime(key.createdAt)}
+                <p className="text-meta font-medium text-ink">{key.name}</p>
+                <p className="text-meta text-ink-faint">
+                  Começa com <code className="font-mono">{key.prefix}</code>, criada em {formatDateTime(key.createdAt)}
                 </p>
               </div>
               {key.revokedAt ? (
@@ -40,6 +39,6 @@ export function KeyList({ keys }: { keys: ApiKey[] }) {
           ))}
         </ul>
       )}
-    </Card>
+    </Section>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CreateKeyForm, KeyList, listApiKeys } from "@/features/api-keys";
 import { requireAdmin } from "@/shared/auth/session";
-import { Card, CardTitle, PageHeader } from "@/shared/ui/primitives";
+import { PageHeader, Section } from "@/shared/ui/primitives";
 
 export const metadata: Metadata = { title: "Chaves de API" };
 
@@ -14,14 +14,13 @@ export default async function ApiKeysPage() {
         title="Chaves de API"
         description={
           <>
-            Seus sistemas chamam o produto com o header <code className="rounded bg-slate-100 px-1 font-mono text-xs">X-Api-Key</code>. Cada chamada conta na quota do mês.
+            Seus sistemas chamam o produto com o header <code className="rounded-[3px] border border-line bg-paper px-1 font-mono text-meta">X-Api-Key</code>. Cada chamada conta na quota do mês.
           </>
         }
       />
-      <Card className="space-y-4">
-        <CardTitle>Nova chave</CardTitle>
+      <Section title="Nova chave" className="max-w-2xl">
         <CreateKeyForm />
-      </Card>
+      </Section>
       <KeyList keys={keys} />
     </div>
   );

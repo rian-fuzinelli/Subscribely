@@ -3,7 +3,7 @@ import { InvitationList, InviteForm, UserList, listInvitations, listUsers } from
 import { getUsage } from "@/features/usage";
 import { requireAdmin } from "@/shared/auth/session";
 import { ButtonLink } from "@/shared/ui/button";
-import { Alert, Card, CardTitle, PageHeader } from "@/shared/ui/primitives";
+import { Alert, PageHeader, Section } from "@/shared/ui/primitives";
 
 export const metadata: Metadata = { title: "Equipe" };
 
@@ -17,8 +17,7 @@ export default async function TeamPage() {
         title="Equipe"
         description={usage ? usage.seatsUsed + " de " + usage.seatLimit + " assentos ocupados (usuários ativos e convites pendentes)." : undefined}
       />
-      <Card className="space-y-4">
-        <CardTitle>Convidar pessoa</CardTitle>
+      <Section title="Convidar pessoa">
         {seatsLeft <= 0 && (
           <Alert
             tone="warning"
@@ -29,7 +28,7 @@ export default async function TeamPage() {
           </Alert>
         )}
         <InviteForm seatsLeft={seatsLeft} />
-      </Card>
+      </Section>
       <InvitationList invitations={invitations} />
       <UserList users={users} currentUserId={session.userId} />
     </div>

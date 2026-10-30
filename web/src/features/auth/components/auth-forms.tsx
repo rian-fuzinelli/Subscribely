@@ -35,7 +35,7 @@ export function LoginForm({ next, email }: { next?: string; email?: string }) {
         errors={state.fieldErrors?.password}
       />
       <div className="flex justify-end">
-        <Link href="/forgot-password" className="text-sm font-medium text-brand-700 hover:underline">
+        <Link href="/forgot-password" className="text-meta font-medium text-ledger-700 hover:underline">
           Esqueci minha senha
         </Link>
       </div>

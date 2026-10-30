@@ -1,12 +1,11 @@
 import Link from "next/link";
 
+/** Wordmark com o marcador quadrado do sistema (o mesmo dos status). */
 export function Logo({ href = "/" }: { href?: string }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-2 rounded-lg font-semibold text-slate-900">
-      <span aria-hidden className="grid size-8 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-        S
-      </span>
-      <span>Subscribely</span>
+    <Link href={href} className="inline-flex items-baseline gap-1 rounded-control text-[1.0625rem] font-bold tracking-tight text-ink">
+      subscribely
+      <span aria-hidden className="size-1.5 bg-ledger-600" />
     </Link>
   );
 }

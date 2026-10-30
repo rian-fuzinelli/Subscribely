@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PaymentMethodForm, getPaymentMethod } from "@/features/payment-method";
 import { requireAdmin } from "@/shared/auth/session";
-import { Card, PageHeader } from "@/shared/ui/primitives";
+import { PageHeader } from "@/shared/ui/primitives";
 
 export const metadata: Metadata = { title: "Meio de pagamento" };
 
@@ -12,11 +12,9 @@ export default async function PaymentMethodPage() {
     <div className="space-y-8">
       <PageHeader
         title="Meio de pagamento"
-        description="Usado na conversão do teste, nas renovações e nas novas tentativas de cobrança."
+        description="Escolha um cartão de teste do gateway simulado. Cada um responde de um jeito às cobranças."
       />
-      <Card>
-        <PaymentMethodForm currentLast4={current?.last4} />
-      </Card>
+      <PaymentMethodForm currentLast4={current?.last4} />
     </div>
   );
 }

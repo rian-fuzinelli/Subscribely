@@ -1,15 +1,37 @@
+import type { ReactNode } from "react";
+import { cn } from "@/shared/cn";
 import { formatDateTime, formatNumber, formatPeriod } from "@/shared/format";
 import { ButtonLink } from "@/shared/ui/button";
-import { Alert, Card, CardTitle, EmptyState, Meter } from "@/shared/ui/primitives";
+import { Alert, EmptyState, Meter, SectionTitle } from "@/shared/ui/primitives";
 import type { Usage, UsageHistoryItem } from "../api";
 import { quotaResetsAt, usagePercent } from "../reset";
 
-/** Requisições e assentos do mês, com alerta a partir de 80% (FR-015). */
-export function UsageSummary({ usage, isAdmin }: { usage: Usage; isAdmin: boolean }) {
+/** Um medidor do mês: régua de tinta no topo, o número em destaque e o contexto embaixo. */
+function UsageBlock({ title, used, limit, note }: { title: string; used: number; limit: number; note: ReactNode }) {
+  return (
+    <div className="border-t-2 border-ink pt-3">
+      <p className="text-meta text-ink-soft">{title}</p>
+      <p className="numeric mt-1 text-title font-semibold">
+        {formatNumber(used)}
+        <span className="text-body font-normal text-ink-faint"> de {formatNumber(limit)}</span>
+      </p>
+      <div className="mt-3">
+        <Meter label={title} value={used} max={limit} />
+      </div>
+      <p className="mt-2 text-meta text-ink-faint">{note}</p>
+    </div>
+  );
+}
+
+/**
+ * Requisições e assentos do mês, com alerta a partir de 80% (FR-015).
+ * `stack` empilha os medidores (coluna lateral da visão geral); `row` os coloca lado a lado.
+ */
+export function UsageSummary({ usage, isAdmin, layout = "row" }: { usage: Usage; isAdmin: boolean; layout?: "row" | "stack" }) {
   const percent = usagePercent(usage.requestsUsed, usage.requestLimit);
   const resetsAt = formatDateTime(quotaResetsAt(usage.period));
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {percent >= 80 && (
         <Alert
           tone={percent >= 100 ? "danger" : "warning"}
@@ -17,54 +39,43 @@ export function UsageSummary({ usage, isAdmin }: { usage: Usage; isAdmin: boolea
           action={isAdmin ? <ButtonLink href="/billing/change-plan" size="sm" variant="secondary">Ver planos</ButtonLink> : undefined}
         >
           {percent >= 100
-            ? "As novas requisições ao produto serão recusadas até " + resetsAt + ". Um upgrade libera mais requisições na hora."
+            ? "Novas requisições ao produto são recusadas até " + resetsAt + ". Um upgrade libera mais na hora."
             : "O contador zera em " + resetsAt + "."}
         </Alert>
       )}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="space-y-3">
-          <CardTitle>Requisições em {formatPeriod(usage.period)}</CardTitle>
-          <p className="text-3xl font-bold tabular-nums text-slate-900">
-            {formatNumber(usage.requestsUsed)}
-            <span className="text-base font-normal text-slate-500"> de {formatNumber(usage.requestLimit)}</span>
-          </p>
-          <Meter label="Requisições usadas no mês" value={usage.requestsUsed} max={usage.requestLimit} />
-          <p className="text-xs text-slate-500">Zera em {resetsAt}.</p>
-        </Card>
-        <Card className="space-y-3">
-          <CardTitle>Assentos</CardTitle>
-          <p className="text-3xl font-bold tabular-nums text-slate-900">
-            {usage.seatsUsed}
-            <span className="text-base font-normal text-slate-500"> de {usage.seatLimit}</span>
-          </p>
-          <Meter label="Assentos ocupados" value={usage.seatsUsed} max={usage.seatLimit} />
-          <p className="text-xs text-slate-500">Usuários ativos e convites pendentes ocupam assentos.</p>
-        </Card>
+      <div className={cn("grid gap-8", layout === "row" && "md:grid-cols-2")}>
+        <UsageBlock
+          title={"Requisições em " + formatPeriod(usage.period)}
+          used={usage.requestsUsed}
+          limit={usage.requestLimit}
+          note={"Zera em " + resetsAt + "."}
+        />
+        <UsageBlock title="Assentos" used={usage.seatsUsed} limit={usage.seatLimit} note="Usuários ativos e convites pendentes ocupam assentos." />
       </div>
     </div>
   );
 }
 
+/** Histórico em barras horizontais: comparar meses é a única pergunta que este gráfico responde. */
 export function UsageHistory({ items }: { items: UsageHistoryItem[] }) {
-  if (items.length === 0) {
-    return <EmptyState title="Ainda sem histórico" description="O uso de cada mês é registrado de hora em hora." />;
-  }
-
-  const max = Math.max(...items.map((item) => item.requestsCount), 1);
   return (
-    <Card className="space-y-4">
-      <CardTitle>Últimos 12 meses</CardTitle>
-      <ul className="space-y-3">
-        {items.map((item) => (
-          <li key={item.period} className="grid grid-cols-[8rem_1fr_auto] items-center gap-3 text-sm">
-            <span className="text-slate-700 capitalize">{formatPeriod(item.period)}</span>
-            <span aria-hidden className="h-2 rounded-full bg-brand-200">
-              <span className="block h-2 rounded-full bg-brand-600" style={{ width: (item.requestsCount / max) * 100 + "%" }} />
-            </span>
-            <span className="text-right tabular-nums text-slate-900">{formatNumber(item.requestsCount)}</span>
-          </li>
-        ))}
-      </ul>
-    </Card>
+    <section aria-labelledby="historico" className="space-y-4">
+      <SectionTitle id="historico">Últimos 12 meses</SectionTitle>
+      {items.length === 0 ? (
+        <EmptyState title="Ainda sem histórico" description="O uso de cada mês é registrado de hora em hora. Volte depois das primeiras chamadas ao produto." />
+      ) : (
+        <ul className="divide-y divide-line border-y border-line">
+          {items.map((item) => (
+            <li key={item.period} className="grid grid-cols-[9rem_1fr_auto] items-center gap-4 py-2.5 text-meta">
+              <span className="text-ink-soft first-letter:uppercase">{formatPeriod(item.period)}</span>
+              <span aria-hidden className="h-1.5 bg-line">
+                <span className="block h-1.5 bg-ledger-600" style={{ width: (item.requestsCount / Math.max(...items.map((i) => i.requestsCount), 1)) * 100 + "%" }} />
+              </span>
+              <span className="numeric text-right text-ink">{formatNumber(item.requestsCount)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

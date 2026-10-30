@@ -23,6 +23,13 @@ export function formatDate(value: string | Date): string {
   return date.format(new Date(value));
 }
 
+/** Intervalo compacto: `29/10 a 12/11/2026` no mesmo ano; datas completas quando os anos diferem. */
+export function formatDateRange(start: string | Date, end: string | Date): string {
+  const from = formatDate(start);
+  const to = formatDate(end);
+  return from.slice(6) === to.slice(6) ? from.slice(0, 5) + " a " + to : from + " a " + to;
+}
+
 /** `31/01/2026 às 23:30` no fuso de São Paulo. */
 export function formatDateTime(value: string | Date): string {
   const instant = new Date(value);

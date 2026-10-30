@@ -9,9 +9,11 @@ type FieldProps = {
 } & Omit<ComponentProps<"input">, "name">;
 
 export const inputClass =
-  "block h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-xs " +
-  "placeholder:text-slate-400 focus:border-brand-600 focus:outline-2 focus:outline-brand-600/30 " +
-  "aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:outline-red-500/30 disabled:bg-slate-50";
+  "block h-10 w-full rounded-control border border-line-strong bg-paper px-3 text-body text-ink " +
+  "placeholder:text-ink-faint hover:border-ink-faint focus:border-ledger-600 focus:outline-2 focus:outline-offset-0 focus:outline-ledger-600/25 " +
+  "aria-[invalid=true]:border-fault-600 aria-[invalid=true]:focus:outline-fault-600/25 disabled:bg-canvas disabled:text-ink-faint";
+
+export const labelClass = "block text-meta font-medium text-ink";
 
 /** Campo com rótulo, dica e erros ligados por `aria-describedby`. */
 export function Field({ label, name, hint, errors, className, ...input }: FieldProps) {
@@ -20,7 +22,7 @@ export function Field({ label, name, hint, errors, className, ...input }: FieldP
   const errorId = errors?.length ? id + "-error" : undefined;
   return (
     <div className={cn("space-y-1.5", className)}>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-800">
+      <label htmlFor={id} className={labelClass}>
         {label}
       </label>
       <input
@@ -32,12 +34,12 @@ export function Field({ label, name, hint, errors, className, ...input }: FieldP
         {...input}
       />
       {hint && (
-        <p id={hintId} className="text-xs text-slate-500">
+        <p id={hintId} className="text-meta text-ink-faint">
           {hint}
         </p>
       )}
       {errors?.length ? (
-        <p id={errorId} className="text-xs font-medium text-red-600">
+        <p id={errorId} className="text-meta font-medium text-fault-600">
           {errors.join(" ")}
         </p>
       ) : null}

@@ -28,7 +28,7 @@ export function SignupForm({ plans, plan, interval }: { plans: Plan[]; plan?: st
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label htmlFor="planCode" className="block text-sm font-medium text-slate-800">
+          <label htmlFor="planCode" className="block text-meta font-medium text-ink">
             Plano
           </label>
           <select id="planCode" name="planCode" defaultValue={selectedPlan} className={inputClass} aria-invalid={errors.planCode ? true : undefined}>
@@ -38,14 +38,14 @@ export function SignupForm({ plans, plan, interval }: { plans: Plan[]; plan?: st
               </option>
             ))}
           </select>
-          {errors.planCode && <p className="text-xs font-medium text-red-600">{errors.planCode.join(" ")}</p>}
+          {errors.planCode && <p className="text-meta font-medium text-fault-600">{errors.planCode.join(" ")}</p>}
         </div>
         <fieldset className="space-y-1.5">
-          <legend className="block text-sm font-medium text-slate-800">Cobrança</legend>
+          <legend className="block text-meta font-medium text-ink">Cobrança</legend>
           <div className="flex h-10 gap-4">
             {(["monthly", "annual"] as const).map((value) => (
-              <label key={value} className="flex items-center gap-2 text-sm text-slate-700">
-                <input type="radio" name="interval" value={value} defaultChecked={selectedInterval === value} className="size-4 accent-brand-600" />
+              <label key={value} className="flex items-center gap-2 text-meta text-ink-soft">
+                <input type="radio" name="interval" value={value} defaultChecked={selectedInterval === value} className="size-4 accent-ledger-600" />
                 {value === "monthly" ? "Mensal" : "Anual"}
               </label>
             ))}
@@ -103,9 +103,9 @@ export function SignupForm({ plans, plan, interval }: { plans: Plan[]; plan?: st
       <SubmitButton className="w-full" size="lg" pendingLabel="Criando sua conta…">
         Criar conta e começar o teste
       </SubmitButton>
-      <p className="text-center text-sm text-slate-600">
+      <p className="text-center text-meta text-ink-soft">
         Já tem conta?{" "}
-        <Link href="/login" className="font-medium text-brand-700 hover:underline">
+        <Link href="/login" className="font-medium text-ledger-700 hover:underline">
           Entrar
         </Link>
       </p>

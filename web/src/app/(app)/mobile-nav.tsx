@@ -15,7 +15,7 @@ export function MobileNav({ isAdmin }: { isAdmin: boolean }) {
         <span className="sr-only">{open ? "Fechar menu" : "Abrir menu"}</span>
       </Button>
       {open && (
-        <nav id="mobile-nav" aria-label="Portal" className="absolute inset-x-0 top-16 z-40 border-b border-slate-200 bg-white p-4 shadow-lg">
+        <nav id="mobile-nav" aria-label="Portal" className="absolute inset-x-0 top-14 z-40 border-b border-line bg-paper px-1 py-5">
           <NavLinks isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
         </nav>
       )}

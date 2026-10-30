@@ -18,7 +18,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="space-y-6">
-      <Link href="/billing/invoices" className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline">
+      <Link href="/billing/invoices" className="inline-flex items-center gap-1 text-meta font-medium text-ledger-700 hover:underline">
         <ArrowLeft className="size-4" aria-hidden /> Faturas
       </Link>
       <InvoiceDetail invoice={invoice} />

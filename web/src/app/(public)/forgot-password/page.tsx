@@ -11,7 +11,7 @@ export default function ForgotPasswordPage() {
       title="Recuperar senha"
       description="Enviaremos um link de uso único, válido por 1 hora."
       footer={
-        <Link href="/login" className="font-medium text-brand-700 hover:underline">
+        <Link href="/login" className="font-medium text-ledger-700 hover:underline">
           Voltar para o login
         </Link>
       }

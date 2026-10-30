@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   // Imagem enxuta no Docker (só o servidor Node e as dependências usadas).
   output: "standalone",
   poweredByHeader: false,
+  // As convenções do projeto já estão nas skills e specs; o `next dev` não gera AGENTS.md.
+  agentRules: false,
   async headers() {
     return [
       {

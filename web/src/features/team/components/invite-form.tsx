@@ -26,7 +26,7 @@ export function InviteForm({ seatsLeft }: { seatsLeft: number }) {
           errors={state.fieldErrors?.email}
         />
         <div className="space-y-1.5">
-          <label htmlFor="invite-role" className="block text-sm font-medium text-slate-800">
+          <label htmlFor="invite-role" className="block text-meta font-medium text-ink">
             Papel
           </label>
           <select id="invite-role" name="role" defaultValue={state.values?.role ?? "Member"} disabled={full} className={inputClass}>

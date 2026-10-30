@@ -25,7 +25,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       footer={
         <>
           Ainda não tem conta?{" "}
-          <Link href="/signup" className="font-medium text-brand-700 hover:underline">
+          <Link href="/signup" className="font-medium text-ledger-700 hover:underline">
             Comece o teste grátis
           </Link>
         </>

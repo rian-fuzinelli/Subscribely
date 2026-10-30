@@ -76,13 +76,13 @@ export function ActionButton({
         <dialog
           ref={dialog}
           aria-labelledby={titleId}
-          className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-2xl p-0 shadow-xl backdrop:bg-slate-900/40"
+          className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-surface border border-line p-0 backdrop:bg-ink/40"
         >
           <div className="p-6">
-            <h2 id={titleId} className="text-lg font-semibold text-slate-900">
+            <h2 id={titleId} className="text-title font-semibold text-ink">
               {confirm.title}
             </h2>
-            <div className="mt-2 text-sm text-slate-600">{confirm.description}</div>
+            <div className="mt-2 text-meta text-ink-soft">{confirm.description}</div>
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button variant="secondary" onClick={() => dialog.current?.close()} autoFocus>
                 Voltar

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { messageFor, toProblem } from "./api/problem";
 import { isProtected, safeNext } from "./auth/cookies";
 import { decodeAccessToken, isExpiring } from "./auth/jwt";
-import { daysUntil, formatDate, formatDateTime, formatMoney, formatPeriod } from "./format";
+import { daysUntil, formatDate, formatDateRange, formatDateTime, formatMoney, formatPeriod } from "./format";
 
 describe("formatMoney", () => {
   it.each([
@@ -20,6 +20,11 @@ describe("datas em São Paulo", () => {
   it("converte UTC para o fuso de Brasília", () => {
     expect(formatDateTime("2026-02-01T02:30:00Z")).toBe("31/01/2026 às 23:30");
     expect(formatDate("2026-02-01T02:30:00Z")).toBe("31/01/2026");
+  });
+
+  it("encurta o intervalo quando o ano é o mesmo", () => {
+    expect(formatDateRange("2026-10-29T15:00:00Z", "2026-11-12T15:00:00Z")).toBe("29/10 a 12/11/2026");
+    expect(formatDateRange("2026-12-20T15:00:00Z", "2027-01-20T15:00:00Z")).toBe("20/12/2026 a 20/01/2027");
   });
 
   it("nomeia o mês do período", () => {

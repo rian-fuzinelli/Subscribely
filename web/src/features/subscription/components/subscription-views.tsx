@@ -1,7 +1,8 @@
-import { daysUntil, formatDate, intervalLabel } from "@/shared/format";
+import { daysUntil, formatDate, formatDateRange, intervalLabel } from "@/shared/format";
 import { ActionButton } from "@/shared/ui/action-button";
 import { ButtonLink } from "@/shared/ui/button";
-import { Alert, Badge, Card, CardTitle, DescriptionList } from "@/shared/ui/primitives";
+import { Ledger } from "@/shared/ui/ledger";
+import { Alert, Badge, Card } from "@/shared/ui/primitives";
 import {
   cancelPendingChangeAction,
   cancelSubscriptionAction,
@@ -73,39 +74,65 @@ export function SubscriptionBanner({ subscription, isAdmin }: { subscription: Su
   }
 }
 
-/** Resumo da assinatura com as ações permitidas ao papel e ao status. */
+/** Frase de status em linguagem simples (o que está acontecendo e até quando). */
+function statusSentence(subscription: Subscription): string {
+  const end = formatDate(subscription.currentPeriodEnd);
+  switch (subscription.status) {
+    case "Trialing": {
+      const days = daysUntil(subscription.trialEndsAt ?? subscription.currentPeriodEnd);
+      return subscription.cancelAtPeriodEnd
+        ? "Teste grátis até " + end + ". O cancelamento já está agendado."
+        : "Teste grátis até " + formatDate(subscription.trialEndsAt ?? subscription.currentPeriodEnd) + (days === 1 ? ", falta 1 dia." : ", faltam " + days + " dias.");
+    }
+    case "Active":
+      return subscription.cancelAtPeriodEnd ? "Ativa até " + end + ", sem renovação." : "Ativa. Renova em " + end + ".";
+    case "PastDue":
+      return "A última cobrança não foi aprovada. Novas tentativas estão agendadas.";
+    case "Suspended":
+      return "Suspensa por falta de pagamento. O produto volta assim que a fatura for paga.";
+    case "Expired":
+      return "O teste terminou sem meio de pagamento. Reative para voltar a usar.";
+    default:
+      return "Cancelada. Os dados continuam guardados e voltam com a reativação.";
+  }
+}
+
+/** Resumo da assinatura: o plano como título, a situação numa frase e as datas num extrato. */
 export function SubscriptionCard({ subscription, isAdmin, pendingPlanName }: { subscription: Subscription; isAdmin: boolean; pendingPlanName?: string }) {
   const { status } = subscription;
-  const trial = status === "Trialing" && subscription.trialEndsAt;
+  const rows = [
+    {
+      label: status === "Trialing" ? "Período de teste" : "Período atual",
+      value: formatDateRange(subscription.currentPeriodStart, subscription.currentPeriodEnd),
+    },
+    {
+      label: "Próxima cobrança",
+      value: subscription.cancelAtPeriodEnd || canReactivate(status) || status === "Suspended" ? "nenhuma" : formatDate(subscription.currentPeriodEnd),
+    },
+  ];
+  if (subscription.pendingChange) {
+    rows.push({
+      label: "Muda para " + (pendingPlanName ?? subscription.pendingChange.planCode) + " " + intervalLabel[subscription.pendingChange.interval],
+      value: "em " + formatDate(subscription.pendingChange.effectiveAt),
+    });
+  }
+
   return (
-    <Card className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <CardTitle>Assinatura</CardTitle>
+    <Card className="space-y-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-title font-semibold">
+            {subscription.plan.name} <span className="font-normal text-ink-soft">{intervalLabel[subscription.interval]}</span>
+          </h2>
+          <p className="mt-1 text-ink-soft">{statusSentence(subscription)}</p>
+        </div>
         <StatusBadge status={status} />
       </div>
 
-      <DescriptionList
-        items={[
-          { term: "Plano", value: subscription.plan.name + " (" + intervalLabel[subscription.interval] + ")" },
-          trial
-            ? { term: "Teste termina em", value: formatDate(subscription.trialEndsAt!) + " · " + daysUntil(subscription.trialEndsAt!) + " dia(s)" }
-            : { term: "Período atual", value: formatDate(subscription.currentPeriodStart) + " a " + formatDate(subscription.currentPeriodEnd) },
-          {
-            term: "Próxima renovação",
-            value: subscription.cancelAtPeriodEnd || canReactivate(status) ? "—" : formatDate(subscription.currentPeriodEnd),
-          },
-          {
-            term: "Mudança agendada",
-            value: subscription.pendingChange
-              ? (pendingPlanName ?? subscription.pendingChange.planCode) +
-                " (" + intervalLabel[subscription.pendingChange.interval] + ") em " + formatDate(subscription.pendingChange.effectiveAt)
-              : "Nenhuma",
-          },
-        ]}
-      />
+      <Ledger rows={rows} />
 
       {isAdmin && (
-        <div className="flex flex-wrap items-start gap-3 border-t border-slate-100 pt-6">
+        <div className="flex flex-wrap items-start gap-3 pt-1">
           {canChangePlan(status) && <ButtonLink href="/billing/change-plan">Mudar de plano</ButtonLink>}
           {canReactivate(status) && (
             <ActionButton
@@ -132,7 +159,7 @@ export function SubscriptionCard({ subscription, isAdmin, pendingPlanName }: { s
             <ActionButton
               variant="ghost"
               destructive
-              className="text-red-700 hover:bg-red-50"
+              className="text-fault-700 hover:bg-fault-50"
               action={cancelSubscriptionAction}
               confirm={{
                 title: "Cancelar a assinatura?",
@@ -152,7 +179,7 @@ export function SubscriptionCard({ subscription, isAdmin, pendingPlanName }: { s
       )}
 
       {!isAdmin && (
-        <p className="border-t border-slate-100 pt-4 text-sm text-slate-500">
+        <p className="text-meta text-ink-faint">
           Só administradores da conta alteram a assinatura.
         </p>
       )}
