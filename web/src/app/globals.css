@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Paleta da marca (o azul dos e-mails, #2f6fed, é o 600) e tipografia do sistema. */
+@theme {
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dbe7ff;
+  --color-brand-200: #bfd4ff;
+  --color-brand-300: #93b6fd;
+  --color-brand-400: #6090f8;
+  --color-brand-500: #3f74f3;
+  --color-brand-600: #2f6fed;
+  --color-brand-700: #2153c4;
+  --color-brand-800: #1f469d;
+  --color-brand-900: #1f3e7c;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+
+  /* Foco sempre visível para quem navega pelo teclado. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-600;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
