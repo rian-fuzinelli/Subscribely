@@ -1,6 +1,6 @@
 # Tasks — 03 Subscriptions
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `feat/billing-subscriptions` (base: `develop`)
 

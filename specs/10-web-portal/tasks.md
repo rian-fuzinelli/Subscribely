@@ -1,6 +1,6 @@
 # Tasks — 10 Portal web
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `feat/web-portal` (base: `develop`)
 
@@ -18,7 +18,7 @@
 
 ## Closing (fase *close* do `dev-lifecycle` — sempre por último)
 
-- [ ] Push da branch e PR — done when: PR aberto
+- [x] Merge local em `develop` e `main`; push da `main` para o GitHub
 
 ## Done
 

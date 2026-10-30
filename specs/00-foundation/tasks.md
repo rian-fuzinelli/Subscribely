@@ -1,6 +1,6 @@
 # Tasks — 00 Foundation
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `chore/foundation-modular-monolith` (base: `develop`)
 

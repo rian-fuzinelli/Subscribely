@@ -1,6 +1,6 @@
 # Tasks — 05 Payments, Gateway & Webhooks
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `feat/payments-webhooks` (base: `develop`)
 

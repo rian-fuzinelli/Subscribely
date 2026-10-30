@@ -481,8 +481,12 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-# Claude Code subagents (fora do versionamento por enquanto)
-.claude/agents/
+# Ferramentas de IA (skills, agentes e kit de specs do Claude): ficam só na máquina de quem desenvolve.
+.claude/
+.specify/
+CLAUDE.md
+AGENTS.md
+specs/ORCHESTRATION.md
 
 # Segredos locais do docker compose
 .env

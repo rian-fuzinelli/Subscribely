@@ -1,6 +1,6 @@
 # Tasks — 07 Notifications
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `feat/email-notifications` (base: `develop`)
 

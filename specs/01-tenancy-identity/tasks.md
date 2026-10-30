@@ -1,6 +1,6 @@
 # Tasks — 01 Tenancy & Identity
 
-> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída. Formato: `ORCHESTRATION.md`.
+> Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 **Branch:** `feat/tenancy-identity` (base: `develop`)
 
