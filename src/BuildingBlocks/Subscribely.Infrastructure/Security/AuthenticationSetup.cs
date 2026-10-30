@@ -44,6 +44,9 @@ public static class Policies
     public const string TenantAdmin = nameof(TenantAdmin);
     public const string TenantMember = nameof(TenantMember);
     public const string ApiKey = nameof(ApiKey);
+
+    /// <summary>Endpoints de produto: API key do tenant ou a sessão (JWT) de um TenantAdmin — o playground do portal.</summary>
+    public const string ProductAccess = nameof(ProductAccess);
 }
 
 public static class ApiKeyDefaults
@@ -108,7 +111,13 @@ public static class AuthenticationSetup
             .AddPolicy(Policies.ApiKey, p => p
                 .AddAuthenticationSchemes(ApiKeyDefaults.Scheme)
                 .RequireClaim(SubscribelyClaims.ApiKeyId)
-                .RequireClaim(SubscribelyClaims.TenantId));
+                .RequireClaim(SubscribelyClaims.TenantId))
+            .AddPolicy(Policies.ProductAccess, p => p
+                .AddAuthenticationSchemes(ApiKeyDefaults.Scheme, JwtBearerDefaults.AuthenticationScheme)
+                .RequireClaim(SubscribelyClaims.TenantId)
+                .RequireClaim(SubscribelyClaims.TenantSlug)
+                .RequireAssertion(ctx => ctx.User.HasClaim(c => c.Type == SubscribelyClaims.ApiKeyId)
+                    || ctx.User.IsInRole(Roles.TenantAdmin)));
 
         return services;
     }
@@ -156,6 +165,9 @@ public static class AuthorizationEndpointExtensions
 
     public static TBuilder RequireApiKey<TBuilder>(this TBuilder builder)
         where TBuilder : IEndpointConventionBuilder => builder.RequireAuthorization(Policies.ApiKey);
+
+    public static TBuilder RequireProductAccess<TBuilder>(this TBuilder builder)
+        where TBuilder : IEndpointConventionBuilder => builder.RequireAuthorization(Policies.ProductAccess);
 
     public static TBuilder RequireTenantMember<TBuilder>(this TBuilder builder)
         where TBuilder : IEndpointConventionBuilder => builder.RequireAuthorization(Policies.TenantMember);

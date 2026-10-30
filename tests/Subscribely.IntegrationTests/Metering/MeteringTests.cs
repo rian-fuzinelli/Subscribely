@@ -44,15 +44,25 @@ public sealed class MeteringTests(ContainersFixture containers) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Projects_RejectJwt_AndTheProductAuditIsReadable()
+    public async Task Projects_AcceptTheTenantAdminSession_ForThePlayground_ButNotMembers()
     {
         var (tenant, product) = await TenantWithApiKeyAsync("meter-jwt", quota: 1_000);
-        await product.PostAsJsonAsync("/v1/projects", new { name = "Audited" }, Ct);
+        await product.PostAsJsonAsync("/v1/projects", new { name = "Pela chave" }, Ct);
         var admin = tenant.AdminClient(_factory); // token do login: traz o slug do tenant (banco do data plane)
 
-        (await admin.GetAsync(new Uri("/v1/projects", UriKind.Relative), Ct)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        var created = await admin.PostAsJsonAsync("/v1/projects", new { name = "Pelo portal" }, Ct);
+        created.StatusCode.ShouldBe(HttpStatusCode.Created);
+        created.Headers.GetValues("X-RateLimit-Remaining").Single().ShouldBe("998", "the session consumes the same quota as the API key");
+        (await admin.GetFromJsonAsync<List<JsonElement>>("/v1/projects", Ct))!.Count.ShouldBe(2);
+
+        var member = _factory.CreateClient().WithBearer(TestTokens.Issue(Roles.Member, tenant.TenantId, slug: tenant.Slug));
+        (await member.GetAsync(new Uri("/v1/projects", UriKind.Relative), Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await _factory.CreateClient().GetAsync(new Uri("/v1/projects", UriKind.Relative), Ct)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+
         var audit = await admin.GetFromJsonAsync<JsonElement>("/v1/audit?source=product", Ct);
-        audit.GetProperty("items").EnumerateArray().ShouldContain(e => e.GetProperty("actorType").GetString() == "ApiKey");
+        var actors = audit.GetProperty("items").EnumerateArray().Select(e => e.GetProperty("actorType").GetString()).ToList();
+        actors.ShouldContain("ApiKey");
+        actors.ShouldContain("User");
     }
 
     [Fact]

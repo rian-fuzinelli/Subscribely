@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -38,6 +39,21 @@ public sealed class SignupAndAuthTests(ContainersFixture containers) : IAsyncLif
         var login = await _factory.CreateClient().PostAsJsonAsync("/v1/auth/login", new { email = $"a@{slug}.test", password = TenantScenario.DefaultPassword }, Ct);
 
         login.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task SignupStatus_ShowsProvisioningThenActive_AndUnknownIs404()
+    {
+        await Given.EnsurePlanAsync(_factory, "starter");
+        var slug = Given.NewSlug();
+        var signup = await Given.SignUpAsync(_factory, slug, $"s@{slug}.test");
+        var tenantId = (await signup.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("tenantId").GetGuid();
+        var anonymous = _factory.CreateClient();
+
+        (await anonymous.GetFromJsonAsync<JsonElement>($"/v1/signup/{tenantId}", Ct)).GetProperty("status").GetString().ShouldBe("Provisioning");
+        await _factory.DrainOutboxAsync();
+        (await anonymous.GetFromJsonAsync<JsonElement>($"/v1/signup/{tenantId}", Ct)).GetProperty("status").GetString().ShouldBe("Active");
+        (await anonymous.GetAsync(new Uri($"/v1/signup/{Guid.NewGuid()}", UriKind.Relative), Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
     [Fact]

@@ -26,14 +26,17 @@ internal sealed record ProjectResponse(Guid Id, string Name, string? Description
     public static ProjectResponse From(Project p) => new(p.Id, p.Name, p.Description, p.CreatedAt, p.UpdatedAt);
 }
 
-/// <summary>CRUD do produto demo. Só API key; o gate de produto (status da assinatura + quota) roda antes de cada handler.</summary>
+/// <summary>
+/// CRUD do produto demo. API key do tenant ou sessão de um TenantAdmin (playground do portal); o gate de produto
+/// (status da assinatura + quota) roda antes de cada handler nos dois casos.
+/// </summary>
 internal static class ProjectEndpoints
 {
     private const int MaxListSize = 200;
 
     public static IEndpointRouteBuilder MapProjectEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/v1/projects").WithTags("Projects (product)").RequireApiKey().AsProductEndpoints();
+        var group = endpoints.MapGroup("/v1/projects").WithTags("Projects (product)").RequireProductAccess().AsProductEndpoints();
         group.MapGet("/", ListAsync);
         group.MapGet("/{id:guid}", GetAsync);
         group.MapPost("/", CreateAsync).WithRequestValidation<ProjectRequest>();
