@@ -20,6 +20,7 @@ docker compose up -d --build    # api, postgres, redis, mailpit
 
 | Endereço | O quê |
 |---|---|
+| http://localhost:3000 | Portal web dos clientes ([`web/`](web/README.md)) |
 | http://localhost:8080/scalar | Documentação interativa da API |
 | http://localhost:8080/health/ready | Prontidão (Postgres + Redis) |
 | http://localhost:8080/hangfire | Dashboard de jobs (PlatformAdmin) |

@@ -63,6 +63,36 @@ jobs:
           name: coverage-report
           path: TestResults/coverage/report
 
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
   compose-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -84,6 +114,15 @@ jobs:
             sleep 2
           done
           docker compose logs api
+          exit 1
+
+      - name: Portal responds
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fs -o /dev/null http://localhost:3000/login; then exit 0; fi
+            sleep 2
+          done
+          docker compose logs web
           exit 1
 
       - name: Stop stack

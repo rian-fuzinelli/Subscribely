@@ -50,6 +50,7 @@ services:
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?defina no .env}
       Payments__WebhookBaseUrl: http://api:8080
       Payments__FakeGateway__WebhookSecret: ${FAKE_GATEWAY_WEBHOOK_SECRET:?defina no .env}
+      Notifications__PortalBaseUrl: http://localhost:3000/
     ports:
       - "8080:8080"
     depends_on:
@@ -58,6 +59,19 @@ services:
       redis:
         condition: service_healthy
       mailpit:
+        condition: service_started
+
+  web:
+    build:
+      context: web
+    environment:
+      SUBSCRIBELY_API_URL: http://api:8080
+      # HTTP local: cookies sem Secure (em produção, atrás de HTTPS, use true).
+      COOKIE_SECURE: "false"
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
         condition: service_started
 
 volumes:
