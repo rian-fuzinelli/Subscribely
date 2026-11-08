@@ -1,6 +1,6 @@
 # Plan — 00 Foundation
 
-> Só vale após a aprovação de `spec.md`. Aprovação → kickoff do `dev-lifecycle`.
+> Só vale após a aprovação de `spec.md`. Aprovação → kickoff do `dev-lifecycle`...
 
 ## Branch and delivery
 
