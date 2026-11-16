@@ -10,7 +10,7 @@ using Subscribely.Modules.Tenancy;
 
 namespace Subscribely.ArchitectureTests;
 
-/// <summary>Toda propriedade sensível de entidade auditada precisa de [NotAudited] (nunca vai para o JSON da trilha).</summary>
+/// <summary>Toda propriedade sensivel de entidade auditada precisa de [NotAudited] (nunca vai para o JSON da trilha).</summary>
 public sealed class AuditSensitiveFieldsTests
 {
     private static readonly string[] SensitiveMarkers = ["hash", "token", "secret", "password"];
