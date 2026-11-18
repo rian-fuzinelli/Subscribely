@@ -1,3 +1,4 @@
+
 # Subscribely
 
 Sistema de **assinaturas e cobrança** para empresas que vendem software por assinatura (SaaS): quem paga,
